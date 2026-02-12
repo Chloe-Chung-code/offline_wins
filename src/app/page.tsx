@@ -7,6 +7,8 @@ import { startSession, getElapsedMs } from "@/lib/session-manager";
 import { getDayTotal, getCurrentStreak } from "@/lib/streak-calculator";
 import { formatDuration, formatDurationFromMs, getTodayDate } from "@/lib/format";
 import ProgressRing from "@/components/ProgressRing";
+import ReflectionPrompt from "@/components/ReflectionPrompt";
+import InstallPrompt from "@/components/InstallPrompt";
 
 export default function HomePage() {
   const router = useRouter();
@@ -153,6 +155,12 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center px-6 py-12 page-transition">
+      {/* Reflection prompt overlay */}
+      <ReflectionPrompt />
+
+      {/* Install prompt */}
+      <InstallPrompt />
+
       {/* Greeting */}
       <div className="text-center mb-8 mt-4">
         <h1 className="text-2xl font-bold text-forest">

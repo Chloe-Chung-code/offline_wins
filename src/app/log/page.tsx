@@ -128,7 +128,7 @@ function LogContent() {
     setShowCelebration(true);
     fireConfetti();
     setTimeout(() => {
-      router.push("/");
+      router.push(isEdit ? "/calendar" : "/calendar");
     }, 1200);
   }
 
@@ -149,7 +149,7 @@ function LogContent() {
       };
       saveSession(fullSession);
     }
-    router.push("/");
+    router.push("/calendar");
   }
 
   // Celebration overlay
