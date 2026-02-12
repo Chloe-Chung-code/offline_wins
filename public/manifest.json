@@ -1,0 +1,22 @@
+{
+  "name": "Offline Wins",
+  "short_name": "Offline Wins",
+  "description": "Celebrate your time away from screens",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FEFAE0",
+  "theme_color": "#1B4332",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
