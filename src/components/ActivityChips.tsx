@@ -17,10 +17,10 @@ export default function ActivityChips({ selected, onToggle }: ActivityChipsProps
             key={activity}
             type="button"
             onClick={() => onToggle(activity)}
-            className={`px-4 py-2 rounded-pill text-sm font-medium transition-all duration-200 min-h-[44px] ${
+            className={`px-4 py-2.5 rounded-pill text-sm font-medium transition-all duration-200 min-h-[44px] ${
               isSelected
-                ? "bg-forest text-cream shadow-md"
-                : "bg-cream-dark text-forest hover:bg-forest/10"
+                ? "bg-forest text-white shadow-medium"
+                : "bg-white text-forest shadow-soft hover:shadow-medium"
             }`}
           >
             {activity}

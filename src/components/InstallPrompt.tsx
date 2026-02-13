@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { X } from "lucide-react";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -13,12 +14,10 @@ export default function InstallPrompt() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    // Check if already dismissed this session
     if (typeof window !== "undefined" && sessionStorage.getItem("pwa_install_dismissed")) {
       setDismissed(true);
     }
 
-    // Check if already installed
     if (typeof window !== "undefined" && window.matchMedia("(display-mode: standalone)").matches) {
       return;
     }
@@ -54,28 +53,28 @@ export default function InstallPrompt() {
   }
 
   return (
-    <div className="w-full max-w-sm mx-auto mb-4 bg-white/70 rounded-card p-4 shadow-sm animate-fade_in_up">
+    <div className="w-full max-w-sm mx-auto mb-4 bg-white rounded-lg p-4 shadow-soft animate-fade_in_up">
       <div className="flex items-center justify-between">
-        <div>
+        <div className="flex-1">
           <p className="text-sm font-medium text-forest">
             Install Offline Wins
           </p>
-          <p className="text-xs text-forest/50">
-            Add to your home screen for the full experience
+          <p className="text-caption">
+            Add to your home screen
           </p>
         </div>
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={handleDismiss}
-            className="text-xs text-forest/40 min-h-[44px] min-w-[44px] flex items-center justify-center"
+            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-forest/5 transition-colors text-muted"
           >
-            Later
+            <X size={16} />
           </button>
           <button
             type="button"
             onClick={handleInstall}
-            className="px-4 py-2 rounded-pill bg-forest text-cream text-xs font-medium min-h-[44px]"
+            className="px-4 py-2 rounded-pill bg-forest text-white text-xs font-medium min-h-[36px] transition-all duration-200"
           >
             Install
           </button>

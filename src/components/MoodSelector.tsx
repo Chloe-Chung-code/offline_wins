@@ -14,33 +14,33 @@ export default function MoodSelector({ selected, onSelect }: MoodSelectorProps) 
   }));
 
   return (
-    <div className="flex justify-center gap-3">
+    <div className="flex justify-center gap-4">
       {moodEntries.map((mood) => {
         const isSelected = selected === mood.rating;
         return (
           <button
             key={mood.rating}
             onClick={() => onSelect(mood.rating)}
-            className="flex flex-col items-center gap-1 transition-all duration-200"
+            className="flex flex-col items-center gap-1.5 transition-all duration-200"
             type="button"
           >
             <div
               className="flex items-center justify-center rounded-full transition-all duration-200"
               style={{
-                width: isSelected ? 56 : 44,
-                height: isSelected ? 56 : 44,
+                width: 56,
+                height: 56,
                 backgroundColor: mood.bg,
                 border: `2px solid ${mood.color}`,
-                boxShadow: isSelected ? `0 0 12px ${mood.color}40` : "none",
+                boxShadow: isSelected ? `0 0 16px ${mood.color}30` : "none",
                 transform: isSelected ? "scale(1.15)" : "scale(1)",
               }}
             >
-              <span className={`transition-all duration-200 ${isSelected ? "text-2xl" : "text-xl"}`}>
+              <span className={`transition-all duration-200 ${isSelected ? "text-[28px]" : "text-2xl"}`}>
                 {mood.emoji}
               </span>
             </div>
             <span
-              className={`text-xs font-medium transition-all duration-200 ${isSelected ? "opacity-100" : "opacity-0 h-0"}`}
+              className={`text-xs font-medium transition-all duration-200 ${isSelected ? "opacity-100" : "opacity-0 h-0 overflow-hidden"}`}
               style={{ color: mood.color }}
             >
               {mood.label}
