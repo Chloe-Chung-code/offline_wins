@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { getSettings, getActiveSession } from "@/lib/storage";
+import { getSettings, getActiveSession, clearActiveSession, saveSession } from "@/lib/storage";
 import { startSession, getElapsedMs } from "@/lib/session-manager";
+import type { Session } from "@/lib/types";
 import { getDayTotal, getCurrentStreak } from "@/lib/streak-calculator";
 import { formatDuration, formatDurationFromMs, getTodayDate } from "@/lib/format";
 import ProgressRing from "@/components/ProgressRing";
@@ -20,6 +21,7 @@ export default function HomePage() {
   const [streak, setStreak] = useState(0);
   const [userName, setUserName] = useState<string | null>(null);
   const [showConfirmEnd, setShowConfirmEnd] = useState(false);
+  const [autoExpireNotice, setAutoExpireNotice] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const refreshData = useCallback(() => {
@@ -42,9 +44,39 @@ export default function HomePage() {
     // Check for returning user with active session
     const active = getActiveSession();
     if (active && active.isActive) {
-      // User is returning — go straight to log
-      router.replace("/log?returning=true");
-      return;
+      const startTime = new Date(active.startTime);
+      const elapsedMs = Date.now() - startTime.getTime();
+      const MAX_SESSION_MS = 8 * 60 * 60 * 1000; // 8 hours
+
+      if (elapsedMs > MAX_SESSION_MS) {
+        // Auto-expire: save session capped at 8 hours
+        const endTime = new Date(startTime.getTime() + MAX_SESSION_MS);
+        const now = new Date().toISOString();
+        const expiredSession: Session = {
+          id: crypto.randomUUID(),
+          date: startTime.toISOString().split("T")[0],
+          startTime: active.startTime,
+          endTime: endTime.toISOString(),
+          durationMinutes: 480,
+          activities: [],
+          customActivity: null,
+          moodRating: null,
+          notes: null,
+          createdAt: now,
+          updatedAt: now,
+        };
+        saveSession(expiredSession);
+        clearActiveSession();
+        const timeStr = startTime.toLocaleString("en-US", {
+          month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
+        });
+        setAutoExpireNotice(`Your session from ${timeStr} was automatically saved (8h max).`);
+        setTimeout(() => setAutoExpireNotice(null), 5000);
+      } else {
+        // Normal: go to log screen
+        router.replace("/log?returning=true");
+        return;
+      }
     }
 
     setHasActiveSession(false);
@@ -155,6 +187,13 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center px-6 py-12 page-transition">
+      {/* Auto-expire notice */}
+      {autoExpireNotice && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-card bg-forest text-cream text-sm font-medium shadow-lg max-w-sm text-center animate-fade_in_up">
+          {autoExpireNotice}
+        </div>
+      )}
+
       {/* Reflection prompt overlay */}
       <ReflectionPrompt />
 
@@ -188,11 +227,9 @@ export default function HomePage() {
       </div>
 
       {/* Streak Badge */}
-      {streak > 0 && (
-        <div className="mb-10 px-5 py-2 rounded-pill bg-gold/20 text-forest text-sm font-semibold animate-fade_in_up">
-          🔥 {streak} day streak
-        </div>
-      )}
+      <div className="mb-10 px-5 py-2 rounded-pill bg-gold/20 text-forest text-sm font-semibold animate-fade_in_up">
+        {streak > 0 ? `🔥 ${streak} day streak` : "🌱 Start your streak today!"}
+      </div>
 
       {/* Go Offline Button */}
       <button
