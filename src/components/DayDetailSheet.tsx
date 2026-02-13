@@ -182,7 +182,7 @@ function SessionCard({
       </div>
 
       {/* Activities */}
-      {session.activities.length > 0 && (
+      {(session.activities.length > 0 || session.customActivity) && (
         <div className="flex flex-wrap gap-1 mb-2">
           {session.activities.map((a) => (
             <span
@@ -192,6 +192,11 @@ function SessionCard({
               {a}
             </span>
           ))}
+          {session.customActivity && (
+            <span className="text-xs px-2 py-1 rounded-pill bg-gold/20 text-forest/70">
+              {session.customActivity}
+            </span>
+          )}
         </div>
       )}
 

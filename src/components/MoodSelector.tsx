@@ -29,23 +29,22 @@ export default function MoodSelector({ selected, onSelect }: MoodSelectorProps) 
               style={{
                 width: isSelected ? 56 : 44,
                 height: isSelected ? 56 : 44,
-                backgroundColor: isSelected ? mood.bg : "transparent",
-                border: `2px solid ${isSelected ? mood.color : "#1B433230"}`,
-                boxShadow: isSelected ? `0 0 12px ${mood.color}30` : "none",
+                backgroundColor: mood.bg,
+                border: `2px solid ${mood.color}`,
+                boxShadow: isSelected ? `0 0 12px ${mood.color}40` : "none",
+                transform: isSelected ? "scale(1.15)" : "scale(1)",
               }}
             >
               <span className={`transition-all duration-200 ${isSelected ? "text-2xl" : "text-xl"}`}>
                 {mood.emoji}
               </span>
             </div>
-            {isSelected && (
-              <span
-                className="text-xs font-medium animate-fade_in_up"
-                style={{ color: mood.color }}
-              >
-                {mood.label}
-              </span>
-            )}
+            <span
+              className={`text-xs font-medium transition-all duration-200 ${isSelected ? "opacity-100" : "opacity-0 h-0"}`}
+              style={{ color: mood.color }}
+            >
+              {mood.label}
+            </span>
           </button>
         );
       })}

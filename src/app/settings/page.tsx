@@ -20,6 +20,7 @@ export default function SettingsPage() {
   const [customGoal, setCustomGoal] = useState("");
   const [isCustom, setIsCustom] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showToast, setShowToast] = useState(false);
   const [stats, setStats] = useState({ totalHours: 0, totalSessions: 0, longestStreak: 0 });
   const [memberSince, setMemberSince] = useState("");
 
@@ -74,6 +75,8 @@ export default function SettingsPage() {
   function saveGoal(minutes: number) {
     const settings = getSettings();
     saveSettings({ ...settings, dailyGoalMinutes: minutes });
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 2000);
   }
 
   function handleClearData() {
@@ -163,6 +166,15 @@ export default function SettingsPage() {
       <div className="text-center text-xs text-forest/30 mt-12">
         Offline Wins v1.0 — Built by AxxLabs
       </div>
+
+      {/* Goal Saved Toast */}
+      {showToast && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-pill bg-forest text-cream text-sm font-semibold shadow-lg animate-fade_in_up"
+          style={{ animation: "fade_in_up 0.3s ease-out, fade_in_up 0.3s ease-in 1.7s reverse forwards" }}
+        >
+          Goal updated!
+        </div>
+      )}
 
       {/* Clear Data Confirmation */}
       {showClearConfirm && (
