@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { getSettings, getActiveSession, getSessions } from "@/lib/storage";
 import { startSession as startSessionManager } from "@/lib/session-manager";
@@ -63,6 +63,10 @@ export default function HomePage() {
     return () => clearInterval(interval);
   }, [timerStatus]);
 
+  // Use a ref so the mount effect doesn't re-fire when startTimer identity changes
+  const startTimerRef = useRef(startTimer);
+  useEffect(() => { startTimerRef.current = startTimer; });
+
   useEffect(() => {
     setMounted(true);
     const settings = getSettings();
@@ -71,19 +75,18 @@ export default function HomePage() {
       return;
     }
 
-    // Check active session
+    // Restore active session on mount
     const active = getActiveSession();
     if (active && active.isActive) {
-      // Restore session
       const activeStart = new Date(active.startTime);
       const seconds = Math.floor((Date.now() - activeStart.getTime()) / 1000);
       setElapsedSeconds(seconds);
-      // Start the visual timer (we pass a huge duration just to keep it "running")
-      startTimer(999999);
+      startTimerRef.current(999999);
     }
 
     refreshData();
-  }, [router, refreshData, startTimer]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router, refreshData]);
 
   function handleGoOffline() {
     startSessionManager();
