@@ -1,13 +1,17 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getActiveSession, saveSession, updateSession, getSessions } from "@/lib/storage";
+import {
+  getActiveSession,
+  saveSession,
+  updateSession,
+  getSessions,
+} from "@/lib/storage";
 import { endSession } from "@/lib/session-manager";
 import { formatDuration } from "@/lib/format";
 import { ChevronLeft } from "lucide-react";
 import MoodSelector from "@/components/MoodSelector";
-import RippleEffect from "@/components/timer/RippleEffect";
 import type { Session } from "@/lib/types";
 
 const ACTIVITY_PRESETS = [
@@ -22,6 +26,8 @@ const ACTIVITY_PRESETS = [
   { emoji: "🎮", label: "Playing" },
 ];
 
+type LogPhase = "celebration" | "form" | "saved";
+
 function LogContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -29,7 +35,9 @@ function LogContent() {
   const editId = searchParams.get("edit");
 
   const [mounted, setMounted] = useState(false);
-  const [sessionStub, setSessionStub] = useState<Partial<Session> | null>(null);
+  const [sessionStub, setSessionStub] = useState<Partial<Session> | null>(
+    null
+  );
   const [activities, setActivities] = useState<string[]>([]);
   const [customActivity, setCustomActivity] = useState("");
   const [moodRating, setMoodRating] = useState<number | null>(null);
@@ -37,21 +45,11 @@ function LogContent() {
   const [durationMinutes, setDurationMinutes] = useState(0);
   const [isEdit, setIsEdit] = useState(false);
 
-  // Ripple states
-  const [showEntryRipple, setShowEntryRipple] = useState(false);
-  const [showSaveRipple, setShowSaveRipple] = useState(false);
-  const [formReady, setFormReady] = useState(false);
+  const [phase, setPhase] = useState<LogPhase>("celebration");
+  const [celebrationFading, setCelebrationFading] = useState(false);
+  const [formVisible, setFormVisible] = useState(false);
 
   const hasProcessedRef = useRef(false);
-
-  const handleEntryRippleComplete = useCallback(() => {
-    setShowEntryRipple(false);
-    setFormReady(true);
-  }, []);
-
-  const handleSaveRippleComplete = useCallback(() => {
-    router.push("/calendar");
-  }, [router]);
 
   useEffect(() => {
     setMounted(true);
@@ -70,7 +68,8 @@ function LogContent() {
         setCustomActivity(session.customActivity || "");
         setMoodRating(session.moodRating);
         setNotes(session.notes || "");
-        setFormReady(true);
+        setPhase("form");
+        setFormVisible(true);
       }
       return;
     }
@@ -82,7 +81,7 @@ function LogContent() {
         if (stub) {
           setSessionStub(stub);
           setDurationMinutes(stub.durationMinutes);
-          setShowEntryRipple(true);
+          setPhase("celebration");
         }
         return;
       }
@@ -92,7 +91,7 @@ function LogContent() {
     if (stub) {
       setSessionStub(stub);
       setDurationMinutes(stub.durationMinutes);
-      setShowEntryRipple(true);
+      setPhase("celebration");
     } else {
       router.replace("/");
     }
@@ -102,8 +101,42 @@ function LogContent() {
 
   function toggleActivity(label: string) {
     setActivities((prev) =>
-      prev.includes(label) ? prev.filter((a) => a !== label) : [...prev, label]
+      prev.includes(label)
+        ? prev.filter((a) => a !== label)
+        : [...prev, label]
     );
+  }
+
+  function handleLogYourWin() {
+    setCelebrationFading(true);
+    setTimeout(() => {
+      setPhase("form");
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setFormVisible(true);
+        });
+      });
+    }, 400);
+  }
+
+  function handleSaveJustTime() {
+    if (sessionStub) {
+      const fullSession: Session = {
+        id: sessionStub.id || crypto.randomUUID(),
+        date: sessionStub.date || new Date().toISOString().split("T")[0],
+        startTime: sessionStub.startTime || new Date().toISOString(),
+        endTime: sessionStub.endTime || new Date().toISOString(),
+        durationMinutes,
+        activities: [],
+        customActivity: null,
+        moodRating: null,
+        notes: null,
+        createdAt: sessionStub.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      saveSession(fullSession);
+    }
+    router.push("/calendar");
   }
 
   function handleSave() {
@@ -131,60 +164,94 @@ function LogContent() {
       saveSession(fullSession);
     }
 
-    setShowSaveRipple(true);
+    setPhase("saved");
+    setTimeout(() => {
+      router.push("/calendar");
+    }, 1000);
   }
 
-  function handleSkip() {
-    if (sessionStub && !isEdit) {
-      const fullSession: Session = {
-        id: sessionStub.id || crypto.randomUUID(),
-        date: sessionStub.date || new Date().toISOString().split("T")[0],
-        startTime: sessionStub.startTime || new Date().toISOString(),
-        endTime: sessionStub.endTime || new Date().toISOString(),
-        durationMinutes,
-        activities: [],
-        customActivity: null,
-        moodRating: null,
-        notes: null,
-        createdAt: sessionStub.createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      saveSession(fullSession);
-    }
-    router.push("/calendar");
-  }
-
-  // Entry ripple overlay
-  if (showEntryRipple) {
+  // --- Celebration Screen ---
+  if (phase === "celebration") {
     return (
-      <RippleEffect
-        active={true}
-        onComplete={handleEntryRippleComplete}
-        duration={2000}
-        title="Nice work!"
-        subtitle="Let&rsquo;s log your win."
-      />
+      <div
+        className={`min-h-screen flex flex-col items-center justify-center px-6 relative overflow-hidden transition-opacity duration-[400ms] ${
+          celebrationFading ? "opacity-0" : "opacity-100"
+        }`}
+      >
+        {/* Ripple rings */}
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            className="absolute rounded-full border border-[#3B82F6]/20 bg-[#3B82F6]/5 animate-ripple-expand"
+            style={{
+              animationDelay: `${i * 0.4}s`,
+              width: "100px",
+              height: "100px",
+            }}
+          />
+        ))}
+
+        {/* Central glow */}
+        <div className="absolute w-32 h-32 bg-[#3B82F6]/20 blur-3xl rounded-full animate-pulse-slow" />
+
+        {/* Content */}
+        <div className="relative z-10 flex flex-col items-center w-full max-w-sm">
+          <h1
+            className="text-2xl font-bold text-[#0F172A] opacity-0 animate-fade-in-up"
+            style={{ animationDelay: "0.5s" }}
+          >
+            Nice work!
+          </h1>
+          <p
+            className="text-4xl font-bold text-[#0F172A] mt-2 opacity-0 animate-fade-in-up"
+            style={{ animationDelay: "0.7s" }}
+          >
+            {formatDuration(durationMinutes)} offline
+          </p>
+
+          <div className="h-12" />
+
+          <button
+            type="button"
+            onClick={handleLogYourWin}
+            className="w-full py-4 bg-[#0F172A] text-white text-lg font-semibold rounded-2xl shadow-lg active:scale-[0.98] transition-transform duration-200 min-h-[56px] opacity-0 animate-fade-in-up"
+            style={{ animationDelay: "1.2s" }}
+          >
+            Log your win
+          </button>
+          <button
+            type="button"
+            onClick={handleSaveJustTime}
+            className="mt-4 text-sm font-medium text-[#94A3B8] hover:text-[#475569] transition-colors min-h-[44px] opacity-0 animate-fade-in-up"
+            style={{ animationDelay: "1.4s" }}
+          >
+            Save just the time
+          </button>
+        </div>
+      </div>
     );
   }
 
-  // Save ripple overlay
-  if (showSaveRipple) {
+  // --- Saved celebration ---
+  if (phase === "saved") {
     return (
-      <RippleEffect
-        active={true}
-        onComplete={handleSaveRippleComplete}
-        duration={1500}
-        title={isEdit ? "Updated!" : "Saved!"}
-        subtitle=""
-      />
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-2xl font-bold text-[#0F172A] animate-fade-in-up">
+          Saved! 🎉
+        </p>
+      </div>
     );
   }
 
-  // Wait for entry ripple to finish before showing form
-  if (!formReady && !isEdit) return null;
-
+  // --- Log Form ---
   return (
-    <div className="min-h-screen flex flex-col px-6 py-8">
+    <div
+      className={`min-h-screen flex flex-col px-6 py-8 transition-all duration-500 ease-out ${
+        formVisible
+          ? "opacity-100 translate-y-0"
+          : "opacity-0 translate-y-5"
+      }`}
+    >
       {/* Back button for edit mode */}
       {isEdit && (
         <button
@@ -197,20 +264,17 @@ function LogContent() {
         </button>
       )}
 
-      {/* Duration card */}
-      <div className="bg-white rounded-xl p-6 shadow-sm text-center mb-8">
-        <p className="text-xs uppercase tracking-wider text-[#94A3B8] mb-1">
-          {isEdit ? "Session duration" : "You were offline for"}
-        </p>
-        <div className="text-5xl font-bold text-[#0F172A] tabular-nums">
-          {formatDuration(durationMinutes)}
-        </div>
-        {!isEdit && (
-          <p className="text-sm text-[#94A3B8] mt-1">
-            That&apos;s awesome. What did you get up to?
+      {/* Duration card — only in edit mode (user didn't see the ripple screen) */}
+      {isEdit && (
+        <div className="bg-white rounded-xl p-6 shadow-sm text-center mb-8">
+          <p className="text-xs uppercase tracking-wider text-[#94A3B8] mb-1">
+            Session duration
           </p>
-        )}
-      </div>
+          <div className="text-5xl font-bold text-[#0F172A] tabular-nums">
+            {formatDuration(durationMinutes)}
+          </div>
+        </div>
+      )}
 
       {/* Activities */}
       <div className="mb-8">
@@ -267,24 +331,15 @@ function LogContent() {
         />
       </div>
 
-      {/* Action Buttons */}
-      <div className="mt-auto space-y-4 pb-8">
+      {/* Save Button */}
+      <div className="mt-auto pb-8">
         <button
           type="button"
           onClick={handleSave}
-          className="w-full py-4 bg-[#0F172A] text-white text-lg font-semibold rounded-xl shadow-lg active:scale-[0.98] transition-all duration-200 min-h-[56px]"
+          className="w-full py-4 bg-[#0F172A] text-white text-lg font-semibold rounded-2xl shadow-lg active:scale-[0.98] transition-all duration-200 min-h-[56px]"
         >
           {isEdit ? "Save Changes" : "Save"}
         </button>
-        {!isEdit && (
-          <button
-            type="button"
-            onClick={handleSkip}
-            className="w-full py-3 text-sm font-medium text-[#94A3B8] hover:text-[#475569] transition-colors min-h-[44px]"
-          >
-            Just save the time
-          </button>
-        )}
       </div>
     </div>
   );
@@ -292,11 +347,13 @@ function LogContent() {
 
 export default function LogPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-[#94A3B8]">Loading...</div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-[#94A3B8]">Loading...</div>
+        </div>
+      }
+    >
       <LogContent />
     </Suspense>
   );
