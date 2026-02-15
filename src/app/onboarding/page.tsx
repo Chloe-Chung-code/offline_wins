@@ -3,8 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getSettings, saveSettings } from "@/lib/storage";
-import * as Typography from "@/components/ui/Typography";
-import Button from "@/components/ui/Button";
 
 const GOAL_PRESETS = [
   { label: "30m", minutes: 30 },
@@ -50,8 +48,9 @@ export default function OnboardingPage() {
   }
 
   function handleSubmit() {
+    if (!name.trim()) return;
     saveSettings({
-      name: name.trim() || null,
+      name: name.trim(),
       dailyGoalMinutes: goalMinutes,
       onboardingComplete: true,
       createdAt: new Date().toISOString(),
@@ -59,48 +58,48 @@ export default function OnboardingPage() {
     router.push("/");
   }
 
+  const isDisabled = !name.trim();
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12 page-transition bg-background">
-      {/* Hero */}
-      <div className="text-center mb-12 animate-fade-in-up">
-        <div className="text-[80px] leading-none mb-6">🌿</div>
-        <Typography.H1 className="mb-3 text-center">
-          Offline Wins
-        </Typography.H1>
-        <Typography.Body className="max-w-[280px] mx-auto text-center">
-          Celebrate your time away from screens. Not a punishment — a celebration.
-        </Typography.Body>
+    <div className="min-h-screen flex flex-col px-6 pt-20 pb-10 bg-background">
+      {/* Title */}
+      <div className="text-center mb-10">
+        <h1 className="text-2xl font-bold text-[#0F172A]">Offline Wins</h1>
+        <p className="text-base text-[#94A3B8] mt-2">
+          Celebrate your time away from screens.
+        </p>
       </div>
 
       {/* Name Input */}
-      <div className="w-full max-w-sm mb-10">
-        <Typography.Label className="block mb-3">
+      <div className="w-full max-w-sm mx-auto mb-8">
+        <label className="block text-sm font-medium text-[#0F172A] mb-3">
           What should we call you?
-        </Typography.Label>
+        </label>
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Your name (optional)"
-          className="w-full py-3 bg-transparent text-white placeholder:text-white/20 outline-none text-lg border-b-2 border-white/10 focus:border-accent transition-colors"
+          placeholder="Your name"
+          className="w-full py-3 bg-transparent text-lg text-[#0F172A] placeholder:text-[#94A3B8] outline-none border-b-2 border-[#E2E8F0] focus:border-[#3B82F6] transition-colors"
         />
       </div>
 
-      {/* Goal Setting */}
-      <div className="w-full max-w-sm mb-12">
-        <Typography.Label className="block mb-4">
-          How much daily offline time is your goal?
-        </Typography.Label>
-        <div className="flex flex-wrap gap-2 mb-3">
+      {/* Goal Chips */}
+      <div className="w-full max-w-sm mx-auto mb-10">
+        <label className="block text-sm font-medium text-[#0F172A] mb-3">
+          Daily offline goal
+        </label>
+        <div className="flex gap-2">
           {GOAL_PRESETS.map((preset) => (
             <button
               key={preset.minutes}
               type="button"
               onClick={() => handlePresetClick(preset.minutes)}
-              className={`px-6 py-3 rounded-full text-sm font-semibold min-h-[44px] transition-all duration-200 ${goalMinutes === preset.minutes && !isCustom
-                  ? "bg-accent text-white shadow-lg shadow-accent/20"
-                  : "bg-surface-light text-text-secondary hover:bg-surface-elevated"
-                }`}
+              className={`flex-1 h-11 rounded-full text-sm font-medium transition-all duration-200 ${
+                goalMinutes === preset.minutes && !isCustom
+                  ? "bg-[#0F172A] text-white border border-transparent"
+                  : "bg-white text-[#475569] border border-[#E2E8F0]"
+              }`}
             >
               {preset.label}
             </button>
@@ -108,44 +107,44 @@ export default function OnboardingPage() {
           <button
             type="button"
             onClick={handleCustomClick}
-            className={`px-6 py-3 rounded-full text-sm font-semibold min-h-[44px] transition-all duration-200 ${isCustom
-                ? "bg-accent text-white shadow-lg shadow-accent/20"
-                : "bg-surface-light text-text-secondary hover:bg-surface-elevated"
-              }`}
+            className={`flex-1 h-11 rounded-full text-sm font-medium transition-all duration-200 ${
+              isCustom
+                ? "bg-[#0F172A] text-white border border-transparent"
+                : "bg-white text-[#475569] border border-[#E2E8F0]"
+            }`}
           >
             Custom
           </button>
         </div>
         {isCustom && (
-          <div className="flex items-center gap-3 animate-fade-in-up mt-2">
+          <div className="flex items-center gap-3 mt-3">
             <input
               type="number"
               value={customGoal}
               onChange={(e) => handleCustomChange(e.target.value)}
               placeholder="Minutes"
               min={1}
-              className="w-24 py-3 bg-transparent text-white placeholder:text-white/20 outline-none text-lg border-b-2 border-white/10 focus:border-accent transition-colors text-center"
+              className="w-24 py-2 bg-transparent text-[#0F172A] placeholder:text-[#94A3B8] outline-none text-base border-b-2 border-[#E2E8F0] focus:border-[#3B82F6] transition-colors text-center"
             />
-            <Typography.Caption>minutes per day</Typography.Caption>
+            <span className="text-xs text-[#94A3B8] uppercase tracking-wider">minutes per day</span>
           </div>
         )}
-        <div className="mt-4">
-          <Typography.Caption>
-            Current goal: <span className="font-semibold text-accent">{goalMinutes} minutes</span> per day
-          </Typography.Caption>
-        </div>
       </div>
 
-      {/* CTA Button */}
-      <div className="w-full max-w-sm">
-        <Button
-          variant="solid"
-          size="lg"
+      {/* Let's Go Button */}
+      <div className="w-full max-w-sm mx-auto mt-auto">
+        <button
+          type="button"
           onClick={handleSubmit}
-          className="w-full shadow-lg shadow-accent/20"
+          disabled={isDisabled}
+          className={`w-full py-4 rounded-full text-base font-semibold transition-all duration-200 ${
+            isDisabled
+              ? "bg-[#E2E8F0] text-[#94A3B8] cursor-not-allowed"
+              : "bg-[#0F172A] text-white active:scale-[0.98]"
+          }`}
         >
           Let&apos;s Go
-        </Button>
+        </button>
       </div>
     </div>
   );
