@@ -1,5 +1,4 @@
 import type { Config } from "tailwindcss";
-
 const config: Config = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -9,64 +8,39 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        forest: {
-          DEFAULT: "#1B4332",
-          light: "#2D6A4F",
-          dark: "#081C15",
-          muted: "#D8F3DC",
-        },
-        cream: {
-          DEFAULT: "#FEFAE0",
-          dark: "#F5F0CD",
-          warm: "#FFF8E7",
-        },
-        sunset: {
-          DEFAULT: "#E76F51",
-          light: "#F4A261",
-        },
-        gold: {
-          DEFAULT: "#F2A93B",
-          light: "#F9C74F",
-        },
-        brand: {
-          light: "#95D5B2",
-          muted: "#D8F3DC",
-        },
-        muted: "#95A5A0",
-        secondary: "#52796F",
-      },
-      borderRadius: {
-        sm: "12px",
-        card: "16px",
-        lg: "24px",
-        pill: "9999px",
+        background: "var(--background)",
+        surface: "var(--surface)",
+        "text-primary": "var(--text-primary)",
+        "text-secondary": "var(--text-secondary)",
+        accent: "var(--accent)",
+        success: "var(--success)",
       },
       fontFamily: {
         sans: ["Inter", "-apple-system", "system-ui", "sans-serif"],
       },
-      boxShadow: {
-        soft: "0 2px 12px rgba(27, 67, 50, 0.06)",
-        medium: "0 4px 20px rgba(27, 67, 50, 0.10)",
-        button: "0 4px 24px rgba(27, 67, 50, 0.25)",
-      },
       keyframes: {
-        pulse_gentle: {
-          "0%, 100%": { transform: "scale(1)" },
-          "50%": { transform: "scale(1.02)" },
+        "breathing-glow": {
+          "0%, 100%": { transform: "scale(1)", borderColor: "rgba(99, 102, 241, 0.1)", boxShadow: "0 0 0 0 rgba(99, 102, 241, 0)" },
+          "50%": { transform: "scale(1.05)", borderColor: "rgba(99, 102, 241, 0.3)", boxShadow: "0 0 20px 0 rgba(99, 102, 241, 0.2)" },
         },
-        breathe: {
-          "0%, 100%": { transform: "scale(1)", opacity: "0.3" },
-          "50%": { transform: "scale(1.1)", opacity: "0.15" },
+        "ripple-expand": {
+          "0%": { transform: "scale(0)", opacity: "1" },
+          "100%": { transform: "scale(4)", opacity: "0" },
         },
-        fade_in_up: {
-          "0%": { opacity: "0", transform: "translateY(12px)" },
+        "pulse-slow": {
+          "0%, 100%": { opacity: "0.4", transform: "scale(1)" },
+          "50%": { opacity: "0.7", transform: "scale(1.1)" },
+        },
+        "fade-in-up": {
+          "0%": { opacity: "0", transform: "translateY(10px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
       },
       animation: {
-        pulse_gentle: "pulse_gentle 3s ease-in-out infinite",
-        breathe: "breathe 6s ease-in-out infinite",
-        fade_in_up: "fade_in_up 0.4s ease-out forwards",
+        "breathing-glow": "breathing-glow 4s ease-in-out infinite",
+        "ripple-expand": "ripple-expand 1.5s cubic-bezier(0, 0, 0.2, 1) forwards",
+        "pulse-slow": "pulse-slow 3s ease-in-out infinite",
+        "fade-in-up": "fade-in-up 0.5s ease-out forwards",
       },
     },
   },

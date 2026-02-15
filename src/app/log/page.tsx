@@ -7,7 +7,7 @@ import { endSession } from "@/lib/session-manager";
 import { formatDuration } from "@/lib/format";
 import { ChevronLeft } from "lucide-react";
 import MoodSelector from "@/components/MoodSelector";
-import ActivityChips from "@/components/ActivityChips";
+// import ActivityChips from "@/components/ActivityChips";
 import type { Session } from "@/lib/types";
 import confetti from "canvas-confetti";
 
@@ -87,13 +87,6 @@ function LogContent() {
 
   if (!mounted || (!sessionStub && !isEdit)) return null;
 
-  function toggleActivity(activity: string) {
-    setActivities((prev) =>
-      prev.includes(activity)
-        ? prev.filter((a) => a !== activity)
-        : [...prev, activity]
-    );
-  }
 
   function handleSave() {
     if (isEdit && editId) {
@@ -192,7 +185,7 @@ function LogContent() {
         <h2 className="text-heading text-forest mb-4">
           What did you do?
         </h2>
-        <ActivityChips selected={activities} onToggle={toggleActivity} />
+        {/* <ActivityChips selected={activities} onToggle={toggleActivity} /> */}
         <input
           type="text"
           value={customActivity}

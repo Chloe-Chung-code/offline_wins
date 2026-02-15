@@ -24,10 +24,8 @@ export default function ReflectionPrompt() {
     setMounted(true);
     const yesterday = getYesterdayDate();
     setYesterdayDate(yesterday);
-
     const sessions = getSessions(yesterday);
     const dismissed = getDismissedPrompts();
-
     if (sessions.length >= 2 && !dismissed.includes(yesterday)) {
       setSessionCount(sessions.length);
       const mood = getDayMood(yesterday);

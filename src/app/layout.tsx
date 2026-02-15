@@ -5,11 +5,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Offline Wins",
-  description: "Celebrate your time away from screens",
+  description: "Focus. Breathe. Disconnect.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "Offline Wins",
   },
 };
@@ -19,7 +19,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#FEFAE0",
+  themeColor: "#0F172A", // Slate-900
 };
 
 export default function RootLayout({
@@ -29,9 +29,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="font-sans antialiased bg-cream text-forest min-h-screen">
+      <body className="font-sans antialiased bg-background text-text-primary min-h-screen">
         <ServiceWorkerRegistrar />
-        <main className="max-w-md mx-auto min-h-screen pb-16">
+        <main className="max-w-md mx-auto min-h-screen pb-16 relative overflow-hidden">
           {children}
         </main>
         <BottomNav />
