@@ -1,5 +1,4 @@
 import type { Config } from "tailwindcss";
-
 const config: Config = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -17,7 +16,7 @@ const config: Config = {
         success: "var(--success)",
       },
       fontFamily: {
-        sans: ["var(--font-inter)"],
+        sans: ["Inter", "-apple-system", "system-ui", "sans-serif"],
       },
       keyframes: {
         "breathing-glow": {

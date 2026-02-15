@@ -24,7 +24,8 @@ export default function BottomNav() {
 
   if (!mounted) return null;
   if (hidden) return null;
-  // Hide on onboarding or log if needed, though Focus theme might want it always visible
+
+  // Hide on onboarding or log if needed
   if (pathname === "/onboarding") return null;
 
   return (

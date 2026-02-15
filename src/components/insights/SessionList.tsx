@@ -1,20 +1,17 @@
-```
 import React from "react";
 import { getSessions } from "@/lib/storage";
 import * as Typography from "@/components/ui/Typography";
 import { formatDuration } from "@/lib/format";
 
 export default function SessionList() {
-  const sessions = getSessions().sort((a, b) => 
+  const sessions = getSessions().sort((a, b) =>
     new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
   );
 
   // Group by Month
   const grouped = sessions.reduce((acc, session) => {
-    const date = new Date(session.date); // Using the YYYY-MM-DD string
-    // "Month Year" e.g., "September 2023"
+    const date = new Date(session.date);
     const monthKey = date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
-    
     if (!acc[monthKey]) acc[monthKey] = [];
     acc[monthKey].push(session);
     return acc;
@@ -31,10 +28,9 @@ export default function SessionList() {
             {monthSessions.map((session) => {
                 const startTime = new Date(session.startTime);
                 const sessionDate = new Date(session.date);
-
                 return (
-                  <div 
-                    key={session.id} 
+                  <div
+                    key={session.id}
                     className="bg-surface-light border border-white/5 rounded-xl p-4 flex justify-between items-center transition-all hover:border-white/10"
                   >
                     <div>
@@ -70,7 +66,6 @@ export default function SessionList() {
           </div>
         </div>
       ))}
-      
       {sessions.length === 0 && (
           <div className="text-center py-12 text-text-secondary">
               <Typography.Body>No sessions recorded yet.</Typography.Body>
@@ -79,4 +74,3 @@ export default function SessionList() {
     </div>
   );
 }
-```

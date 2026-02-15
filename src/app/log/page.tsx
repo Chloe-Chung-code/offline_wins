@@ -87,13 +87,6 @@ function LogContent() {
 
   if (!mounted || (!sessionStub && !isEdit)) return null;
 
-  function toggleActivity(activity: string) {
-    setActivities((prev) =>
-      prev.includes(activity)
-        ? prev.filter((a) => a !== activity)
-        : [...prev, activity]
-    );
-  }
 
   function handleSave() {
     if (isEdit && editId) {

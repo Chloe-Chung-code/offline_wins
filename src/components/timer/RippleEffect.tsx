@@ -14,15 +14,12 @@ export default function RippleEffect({ active, onComplete }: RippleEffectProps) 
     useEffect(() => {
         if (active) {
             setVisible(true);
-            // Duration of the full ripple sequence
             const timer = setTimeout(() => {
                 if (onComplete) onComplete();
-                // Keep visible for a bit or fade out?
-                // For now, let parent handle unmounting/resetting via 'active' prop
             }, 3000);
             return () => clearTimeout(timer);
         } else {
-            const timer = setTimeout(() => setVisible(false), 500); // fade out
+            const timer = setTimeout(() => setVisible(false), 500);
             return () => clearTimeout(timer);
         }
     }, [active, onComplete]);

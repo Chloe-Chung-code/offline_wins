@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React from "react";
 import { cn } from "@/lib/utils";
 import { TimerStatus } from "@/lib/types";
 
@@ -23,12 +23,6 @@ export default function BreathingRing({
     const circumference = 2 * Math.PI * radius;
     const dashOffset = circumference * (1 - progress);
 
-    // "Breathing" state for the idle/active ring
-    const [isBreathing, setIsBreathing] = useState(false);
-
-    useEffect(() => {
-        setIsBreathing(status === "running");
-    }, [status]);
 
     return (
         <div
@@ -52,7 +46,6 @@ export default function BreathingRing({
                     strokeWidth={strokeWidth}
                     className="text-white/5"
                 />
-
                 {/* Progress Indicator */}
                 <circle
                     cx={size / 2}

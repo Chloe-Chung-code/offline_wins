@@ -10,7 +10,6 @@ export function useTimer({ initialDuration = 60, onComplete }: UseTimerProps = {
     const [status, setStatus] = useState<TimerStatus>("idle");
     const [timeLeft, setTimeLeft] = useState(initialDuration);
     const [duration, setDuration] = useState(initialDuration);
-
     const endTimeRef = useRef<number | null>(null);
     const rafRef = useRef<number | null>(null);
 
@@ -19,11 +18,10 @@ export function useTimer({ initialDuration = 60, onComplete }: UseTimerProps = {
 
         const now = Date.now();
         const remaining = Math.max(0, Math.ceil((endTimeRef.current - now) / 1000));
-
         setTimeLeft(remaining);
 
         if (remaining <= 0) {
-            if (status === "running") { // Only complete if actually running
+            if (status === "running") {
                 setStatus("completed");
                 if (onComplete) onComplete();
             }
@@ -38,8 +36,7 @@ export function useTimer({ initialDuration = 60, onComplete }: UseTimerProps = {
         const now = Date.now();
         endTimeRef.current = now + seconds * 1000;
         setStatus("running");
-        setTimeLeft(seconds); // Update immediately
-
+        setTimeLeft(seconds);
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
         rafRef.current = requestAnimationFrame(tick);
     }, [tick]);
@@ -48,15 +45,11 @@ export function useTimer({ initialDuration = 60, onComplete }: UseTimerProps = {
         if (status !== "running") return;
         setStatus("paused");
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
-        endTimeRef.current = null; // Invalidate end time, we will recalc on resume if needed (not implemented yet)
-        // For MVP Focus, "Pause" might just stop the loop. Resume would need to recalc endTime. 
-        // Domain decision: "No Pause" or "Focus Broken". 
-        // Attempting to resume from pause would require storing "remaining time" and setting new endTime.
+        endTimeRef.current = null;
     }, [status]);
 
     const resume = useCallback(() => {
         if (status !== "paused") return;
-        // Recalculate end time based on timeLeft
         const now = Date.now();
         endTimeRef.current = now + timeLeft * 1000;
         setStatus("running");
@@ -77,9 +70,6 @@ export function useTimer({ initialDuration = 60, onComplete }: UseTimerProps = {
         };
     }, []);
 
-    // Sync effect if status changes to running and we need to start/restart tick? 
-    // No, start/resume handles it.
-
     return {
         status,
         timeLeft,
@@ -88,6 +78,6 @@ export function useTimer({ initialDuration = 60, onComplete }: UseTimerProps = {
         pause,
         resume,
         reset,
-        progress: 1 - (timeLeft / duration) // 0 to 1
+        progress: 1 - (timeLeft / duration)
     };
 }

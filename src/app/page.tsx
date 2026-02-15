@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { getSettings, getActiveSession, clearActiveSession, saveSession, getSessions } from "@/lib/storage";
-import { startSession as startSessionManager, getElapsedMs } from "@/lib/session-manager"; // Renamed to avoid conflict
+import { getSettings, getActiveSession, getSessions } from "@/lib/storage";
+import { startSession as startSessionManager } from "@/lib/session-manager";
 import type { Session } from "@/lib/types";
 import { getDayTotal, getCurrentStreak } from "@/lib/streak-calculator";
 import { formatDuration, getTodayDate } from "@/lib/format";
@@ -28,8 +28,6 @@ export default function HomePage() {
   // Unit B: Timer Hook
   const {
     status: timerStatus,
-    timeLeft,
-    duration,
     start: startTimer,
     reset: resetTimer
   } = useTimer({
@@ -49,34 +47,7 @@ export default function HomePage() {
   }, []);
 
   const handleTimerComplete = useCallback(() => {
-    // 1. Show Ripple
     setIsRippleActive(true);
-
-    // 2. Save Session Data (Unit C logic, but verified here for flow)
-    // For MVP, we might auto-save or ask for tag. 
-    // The current flow expects "End Session" -> Log Page.
-    // But if timer *completes* (count down), maybe we show a "Session Done" state?
-    // For "Focus" theme: user usually sets a goal? 
-    // Wait, original app was "Stopwatch" (count up). 
-    // My useTimer is "Count Down".
-    // The requirement "Tracking Engine" implies we might want count-up active session?
-    // "Offline Wins" concept: "Go Offline" -> Timer starts counting UP (usually).
-    // Let's re-read the PRFAQ/requirements. 
-    // "Timer logic... breathing animation...". 
-    // Ideally, "Go Offline" is open-ended.
-    // IF open-ended: `useTimer` should support "count up" or we just use `elapsedMs`.
-    // The `useTimer` I wrote is a countdown. 
-    // ADAPTATION: I will use `useTimer` as a UI driver for the breathing ring, 
-    // but the *value* displayed will be `elapsed` (count up) to match "Offline Wins" core mechanic.
-    // OR, does the user want a Focus Timer (Pomodoro)?
-    // "Premium Calm aesthetic... offline...". 
-    // Let's stick to the existing "Count Up" behavior for now to minimize friction, 
-    // unless "Focus" implies setting a duration.
-    // Checking `startSession` in `session-manager`: it just records startTime.
-    // So it is Count Up.
-
-    // REVISION: I will ignore `timeLeft` from useTimer for the DISPLAY, and use a local `elapsed` state 
-    // driven by an interval, BUT use `timerStatus` for the Ring state.
   }, []);
 
   // Timer Interval for Count Up (since useTimer is count down/state machine)
@@ -92,11 +63,9 @@ export default function HomePage() {
     return () => clearInterval(interval);
   }, [timerStatus]);
 
-
   useEffect(() => {
     setMounted(true);
     const settings = getSettings();
-
     if (!settings.onboardingComplete) {
       router.replace("/onboarding");
       return;
@@ -115,7 +84,6 @@ export default function HomePage() {
 
     refreshData();
   }, [router, refreshData, startTimer]);
-
 
   function handleGoOffline() {
     startSessionManager();
@@ -145,7 +113,7 @@ export default function HomePage() {
           <BreathingRing status={timerStatus} progress={0} size={300}>
             <TimerDisplay
               secondsRemaining={elapsedSeconds}
-              totalDuration={0} // Irrelevant for count up
+              totalDuration={0}
             />
           </BreathingRing>
 
@@ -182,7 +150,6 @@ export default function HomePage() {
 
       {/* Main Action area */}
       <div className="flex flex-col items-center justify-center py-12">
-        {/* Placeholder for DataViz/Unit C (using static ring for now) */}
         <div className="relative w-64 h-64 flex items-center justify-center mb-8 opacity-50 grayscale">
           <div className="w-full h-full rounded-full border-4 border-surface-light" />
           <div className="absolute text-center">

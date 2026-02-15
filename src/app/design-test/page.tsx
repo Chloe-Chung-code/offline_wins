@@ -10,7 +10,7 @@ export default function DesignTestPage() {
                 <Caption>Design System Verification</Caption>
                 <H1>Focus Theme</H1>
                 <Body>
-                    This is a test of the "Focus" edition design system. It uses Slate-900 as the background
+                    This is a test of the &quot;Focus&quot; edition design system. It uses Slate-900 as the background
                     and Inter for typography.
                 </Body>
             </div>

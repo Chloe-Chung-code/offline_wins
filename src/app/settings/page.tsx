@@ -34,6 +34,7 @@ export default function SettingsPage() {
       router.replace("/onboarding");
       return;
     }
+
     setGoalMinutes(settings.dailyGoalMinutes);
 
     const matchesPreset = GOAL_PRESETS.some((p) => p.minutes === settings.dailyGoalMinutes);

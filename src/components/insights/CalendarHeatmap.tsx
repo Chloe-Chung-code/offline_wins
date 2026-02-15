@@ -22,7 +22,6 @@ export default function CalendarHeatmap() {
         const offset = date.getTimezoneOffset();
         const localDate = new Date(date.getTime() - (offset * 60 * 1000));
         const isoDate = localDate.toISOString().split('T')[0];
-
         return sessions
             .filter(s => s.date === isoDate)
             .reduce((acc, s) => acc + s.durationMinutes, 0);
@@ -37,12 +36,11 @@ export default function CalendarHeatmap() {
 
     return (
         <div className="w-full overflow-x-auto pb-4">
-            <div className="min-w-[700px]"> {/* Ensure generic width for scroll */}
+            <div className="min-w-[700px]">
                 <div className="flex justify-between mb-2">
                     <Typography.Label>Activity Log</Typography.Label>
                     <Typography.Caption className="text-text-secondary">Last 365 Days</Typography.Caption>
                 </div>
-
                 <div className="grid grid-rows-7 grid-flow-col gap-1">
                     {dates.map((date) => {
                         const minutes = getMinutesForDay(date);
