@@ -29,7 +29,7 @@ export default function BottomNav() {
   if (pathname === "/onboarding") return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-30 bg-surface/90 backdrop-blur-md border-t border-white/10">
+    <nav className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200">
       <div className="max-w-[480px] mx-auto flex items-center justify-around h-16">
         {TABS.map((tab) => {
           const isActive = pathname === tab.href;
@@ -40,7 +40,7 @@ export default function BottomNav() {
               className="flex flex-col items-center justify-center gap-1 w-16 h-full relative group"
             >
               <div
-                className={`transition-all duration-300 ${isActive ? "text-accent translate-y-0" : "text-text-secondary group-hover:text-text-primary translate-y-1"
+                className={`transition-all duration-300 ${isActive ? "text-[#0F172A] translate-y-0" : "text-[#94A3B8] group-hover:text-text-primary translate-y-1"
                   }`}
               >
                 <tab.Icon
@@ -49,7 +49,7 @@ export default function BottomNav() {
                 />
               </div>
               <span
-                className={`text-[10px] font-medium tracking-wide transition-all duration-300 ${isActive ? "opacity-100 translate-y-0 text-accent" : "opacity-0 translate-y-2 text-text-secondary"
+                className={`text-[10px] font-medium tracking-wide transition-all duration-300 ${isActive ? "opacity-100 translate-y-0 text-[#0F172A]" : "opacity-0 translate-y-2 text-[#94A3B8]"
                   }`}
               >
                 {tab.label}
@@ -58,7 +58,7 @@ export default function BottomNav() {
           );
         })}
       </div>
-      <div className="h-[env(safe-area-inset-bottom)] bg-surface/90 backdrop-blur-md" />
+      <div className="h-[env(safe-area-inset-bottom)] bg-white" />
     </nav>
   );
 }

@@ -43,7 +43,7 @@ export default function HomePage() {
     setTodayMinutes(getDayTotal(getTodayDate()));
     setStreak(getCurrentStreak());
     const all = getSessions();
-    setRecentSessions(all.slice(-3).reverse());
+    setRecentSessions(all.slice(-2).reverse());
   }, []);
 
   const handleTimerComplete = useCallback(() => {
@@ -121,7 +121,7 @@ export default function HomePage() {
             <Button
               variant="outline"
               onClick={handleEndSession}
-              className="border-white/10 text-text-secondary hover:text-white hover:border-white/30"
+              className="border-slate-300 text-text-secondary hover:text-text-primary hover:border-slate-400"
             >
               End Session
             </Button>
@@ -131,63 +131,121 @@ export default function HomePage() {
     );
   }
 
-  // Render Dashboard View
-  const progressRatio = goalMinutes > 0 ? todayMinutes / goalMinutes : 0;
+  // Render Dashboard / Idle View
+  const progressRatio = goalMinutes > 0 ? Math.min(todayMinutes / goalMinutes, 1) : 0;
+  const progressPercent = Math.round(progressRatio * 100);
+
+  // SVG progress ring constants
+  const ringSize = 160;
+  const ringStroke = 10;
+  const ringRadius = (ringSize - ringStroke) / 2;
+  const ringCircumference = 2 * Math.PI * ringRadius;
+  const ringDashOffset = ringCircumference * (1 - progressRatio);
 
   return (
     <LayoutShell>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <Typography.H1>
+      {/* Header: Greeting + Streak Pill */}
+      <div className="flex items-center justify-between mb-6">
+        <Typography.H1 className="!mb-0 text-2xl">
           Hello, {userName || "Reviewer"}
         </Typography.H1>
-        <div className="bg-surface-light border border-white/5 px-3 py-1 rounded-full">
-          <Typography.Caption className="text-accent">
-            {streak} day streak
-          </Typography.Caption>
-        </div>
+        {streak > 0 && (
+          <div className="bg-accent/10 px-3 py-1 rounded-full">
+            <span className="text-xs font-semibold text-accent">
+              {streak} day streak
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* Main Action area */}
-      <div className="flex flex-col items-center justify-center py-12">
-        <div className="relative w-64 h-64 flex items-center justify-center mb-8 opacity-50 grayscale">
-          <div className="w-full h-full rounded-full border-4 border-surface-light" />
-          <div className="absolute text-center">
-            <Typography.H2>{Math.round(progressRatio * 100)}%</Typography.H2>
-            <Typography.Caption>Daily Goal</Typography.Caption>
+      {/* Progress Ring */}
+      <div className="flex flex-col items-center py-8">
+        <div className="relative inline-flex items-center justify-center" style={{ width: ringSize, height: ringSize }}>
+          <svg width={ringSize} height={ringSize} className="transform -rotate-90">
+            {/* Background track */}
+            <circle
+              cx={ringSize / 2}
+              cy={ringSize / 2}
+              r={ringRadius}
+              fill="none"
+              stroke="#E2E8F0"
+              strokeWidth={ringStroke}
+            />
+            {/* Progress arc */}
+            <circle
+              cx={ringSize / 2}
+              cy={ringSize / 2}
+              r={ringRadius}
+              fill="none"
+              stroke="#3B82F6"
+              strokeWidth={ringStroke}
+              strokeLinecap="round"
+              strokeDasharray={ringCircumference}
+              strokeDashoffset={ringDashOffset}
+              className="transition-all duration-1000 ease-out"
+            />
+          </svg>
+          {/* Center text */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-3xl font-bold text-text-primary">{progressPercent}%</span>
+            <span className="text-xs text-text-secondary mt-0.5">Daily Goal</span>
           </div>
         </div>
 
-        <Button
-          variant="solid"
-          size="lg"
-          className="w-full max-w-xs h-16 text-lg shadow-glow animate-pulse-slow"
-          onClick={handleGoOffline}
-        >
-          Go Offline
-        </Button>
+        <p className="text-sm text-text-secondary mt-3">
+          {todayMinutes > 0
+            ? `${formatDuration(todayMinutes)} of ${formatDuration(goalMinutes)} today`
+            : `${formatDuration(goalMinutes)} goal today`
+          }
+        </p>
       </div>
 
-      {/* Recent Sessions List */}
-      <div className="mt-8">
-        <Typography.Label className="mb-4 block">Recent Wins</Typography.Label>
-        <div className="space-y-3">
-          {recentSessions.length === 0 ? (
-            <div className="p-4 rounded-xl bg-surface-light border border-white/5 text-center">
-              <Typography.Caption>No sessions yet. Start one!</Typography.Caption>
-            </div>
-          ) : (
-            recentSessions.map(s => (
-              <div key={s.id} className="p-4 rounded-xl bg-surface-light border border-white/5 flex justify-between items-center">
-                <div>
-                  <Typography.Body>{formatDuration(s.durationMinutes)}</Typography.Body>
-                  <Typography.Caption>{s.activities[0] || "Focus"}</Typography.Caption>
-                </div>
-                <Typography.Caption>{s.date.slice(5)}</Typography.Caption>
-              </div>
-            ))
+      {/* Go Offline Button */}
+      <div className="flex justify-center mb-10">
+        <button
+          onClick={handleGoOffline}
+          className="w-full max-w-xs h-14 rounded-xl bg-[#0F172A] text-white text-lg font-semibold shadow-lg animate-gentle-glow transition-transform duration-200 active:scale-[0.97]"
+        >
+          Go Offline
+        </button>
+      </div>
+
+      {/* Recent Sessions (max 2, compact text lines) */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <Typography.Label className="text-text-secondary text-xs font-semibold uppercase tracking-wider">Recent Wins</Typography.Label>
+          {recentSessions.length > 0 && (
+            <button
+              onClick={() => router.push("/calendar")}
+              className="text-xs font-medium text-accent hover:underline"
+            >
+              View all
+            </button>
           )}
         </div>
+        {recentSessions.length === 0 ? (
+          <p className="text-sm text-text-secondary text-center py-4">
+            No sessions yet. Start one!
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {recentSessions.map(s => (
+              <div key={s.id} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-b-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-text-primary">
+                    {formatDuration(s.durationMinutes)}
+                  </span>
+                  <span className="text-sm text-text-secondary">
+                    {s.activities[0] || "Focus"}
+                  </span>
+                </div>
+                <span className="text-xs text-text-secondary">
+                  {new Date(s.date).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <RippleEffect active={isRippleActive} onComplete={handleRippleComplete} />

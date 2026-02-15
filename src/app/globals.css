@@ -3,17 +3,17 @@
 @tailwind utilities;
 
 :root {
-  /* Focus Theme (Slate/Indigo) */
-  --background: #0F172A;
-  /* Slate-900 */
-  --surface: #1E293B;
-  /* Slate-800 */
-  --text-primary: #F8FAFC;
-  /* Slate-50 */
-  --text-secondary: #94A3B8;
-  /* Slate-400 */
-  --accent: #6366F1;
-  /* Indigo-500 */
+  /* Ocean Calm Theme */
+  --background: #F8FAFC;
+  /* Cool gray, near-white */
+  --surface: #FFFFFF;
+  /* White */
+  --text-primary: #0F172A;
+  /* Near-black, Slate-900 */
+  --text-secondary: #475569;
+  /* Slate-600 */
+  --accent: #3B82F6;
+  /* Blue-500 */
   --success: #10B981;
   /* Emerald-500 */
 }
@@ -22,7 +22,6 @@ body {
   color: var(--text-primary);
   background: var(--background);
   font-feature-settings: "cv02", "cv03", "cv04";
-  /* Inter features */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
