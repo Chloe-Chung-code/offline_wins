@@ -24,32 +24,40 @@ export default function BottomNav() {
 
   if (!mounted) return null;
   if (hidden) return null;
-  if (pathname === "/onboarding" || pathname === "/log") return null;
+  // Hide on onboarding or log if needed, though Focus theme might want it always visible
+  if (pathname === "/onboarding") return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-30 bg-white" style={{ borderTop: "1px solid rgba(27, 67, 50, 0.08)" }}>
-      <div className="max-w-md mx-auto flex items-center justify-around h-14">
+    <nav className="fixed bottom-0 left-0 right-0 z-30 bg-surface/90 backdrop-blur-md border-t border-white/10">
+      <div className="max-w-[480px] mx-auto flex items-center justify-around h-16">
         {TABS.map((tab) => {
           const isActive = pathname === tab.href;
           return (
             <Link
               key={tab.href}
               href={tab.href}
-              className="flex flex-col items-center justify-center gap-1 min-w-[64px] min-h-[44px] transition-all duration-200"
+              className="flex flex-col items-center justify-center gap-1 w-16 h-full relative group"
             >
-              <tab.Icon
-                size={22}
-                strokeWidth={isActive ? 2.5 : 1.5}
-                className={`transition-colors duration-200 ${isActive ? "text-forest" : "text-muted"}`}
-              />
-              {isActive && (
-                <div className="w-1 h-1 rounded-full bg-forest" />
-              )}
+              <div
+                className={`transition-all duration-300 ${isActive ? "text-accent translate-y-0" : "text-text-secondary group-hover:text-text-primary translate-y-1"
+                  }`}
+              >
+                <tab.Icon
+                  size={24}
+                  strokeWidth={isActive ? 2 : 1.5}
+                />
+              </div>
+              <span
+                className={`text-[10px] font-medium tracking-wide transition-all duration-300 ${isActive ? "opacity-100 translate-y-0 text-accent" : "opacity-0 translate-y-2 text-text-secondary"
+                  }`}
+              >
+                {tab.label}
+              </span>
             </Link>
           );
         })}
       </div>
-      <div className="h-[env(safe-area-inset-bottom)]" />
+      <div className="h-[env(safe-area-inset-bottom)] bg-surface/90 backdrop-blur-md" />
     </nav>
   );
 }
