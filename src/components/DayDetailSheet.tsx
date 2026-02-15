@@ -10,6 +10,8 @@ import { getDayMood, getMoodDisplay } from "@/lib/mood-calculator";
 import { formatDuration } from "@/lib/format";
 import { formatDayHeader, formatTimeRange } from "@/lib/calendar-utils";
 import MoodSelector from "@/components/MoodSelector";
+import * as Typography from "@/components/ui/Typography";
+import Button from "@/components/ui/Button";
 import type { Session } from "@/lib/types";
 
 interface DayDetailSheetProps {
@@ -44,28 +46,28 @@ export default function DayDetailSheet({ date, onClose }: DayDetailSheetProps) {
 
   return (
     <div className="fixed inset-0 z-40 flex items-end justify-center" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/30" />
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-fade-in" />
 
       <div
-        className="relative w-full max-w-md bg-white rounded-t-lg shadow-medium max-h-[60vh] overflow-y-auto animate-slide-up"
+        className="relative w-full max-w-md bg-surface border-t border-white/10 rounded-t-xl shadow-2xl max-h-[80vh] overflow-y-auto animate-slide-up"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Handle bar */}
         <div className="flex justify-center pt-3 pb-2">
-          <div className="w-10 h-1 rounded-full bg-[#D1D5DB]" />
+          <div className="w-10 h-1 rounded-full bg-white/20" />
         </div>
 
         <div className="px-6 pb-8">
           {/* Header */}
-          <h2 className="text-heading text-forest mb-1">
+          <Typography.H2 className="mb-1 text-center">
             {formatDayHeader(date)}
-          </h2>
-          <div className="flex items-center gap-3 mb-6">
-            <span className="text-secondary text-body">
+          </Typography.H2>
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <Typography.Body className="!mb-0 text-text-secondary">
               {formatDuration(dayTotal)} offline
-            </span>
+            </Typography.Body>
             {goalMet && (
-              <span className="text-xs px-2 py-1 rounded-pill bg-forest-muted text-forest font-medium">
+              <span className="text-xs px-2 py-1 rounded-full bg-accent/20 text-accent font-medium border border-accent/20">
                 Goal met
               </span>
             )}
@@ -78,9 +80,9 @@ export default function DayDetailSheet({ date, onClose }: DayDetailSheetProps) {
 
           {/* Sessions list */}
           {sessions.length === 0 ? (
-            <p className="text-muted text-body text-center py-8">
+            <Typography.Body className="text-center py-8 opacity-50">
               No sessions this day
-            </p>
+            </Typography.Body>
           ) : (
             <div className="space-y-3 mb-6">
               {sessions.map((session) => (
@@ -95,41 +97,41 @@ export default function DayDetailSheet({ date, onClose }: DayDetailSheetProps) {
 
           {/* Override mood */}
           {sessions.length >= 2 && (
-            <div className="pt-4" style={{ borderTop: "1px solid rgba(27, 67, 50, 0.08)" }}>
+            <div className="pt-4 border-t border-white/10">
               {showMoodOverride ? (
                 <div className="space-y-4">
-                  <p className="text-body text-secondary text-center">
+                  <Typography.Body className="text-center">
                     How did this day feel overall?
-                  </p>
+                  </Typography.Body>
                   <MoodSelector
                     selected={overrideMood}
                     onSelect={setOverrideMood}
                   />
                   <div className="flex gap-3">
-                    <button
-                      type="button"
+                    <Button
+                      variant="ghost"
                       onClick={() => setShowMoodOverride(false)}
-                      className="flex-1 py-3 text-secondary font-medium text-sm min-h-[44px] transition-all duration-200"
+                      className="flex-1"
                     >
                       Cancel
-                    </button>
-                    <button
-                      type="button"
+                    </Button>
+                    <Button
+                      variant="solid"
                       onClick={handleOverrideSave}
-                      className="flex-1 py-3 rounded-pill bg-forest text-white font-medium text-sm min-h-[44px] transition-all duration-200"
+                      className="flex-1"
                     >
                       Save
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ) : (
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
                   onClick={() => setShowMoodOverride(true)}
-                  className="w-full py-3 text-secondary text-sm font-medium hover:text-forest transition-colors min-h-[44px]"
+                  className="w-full text-text-secondary hover:text-white"
                 >
                   Override day mood
-                </button>
+                </Button>
               )}
             </div>
           )}
@@ -151,21 +153,21 @@ function SessionCard({
     : null;
 
   return (
-    <div className="bg-cream-warm rounded-card p-4 shadow-soft">
+    <div className="bg-surface-light rounded-xl p-4 border border-white/5 shadow-lg">
       <div className="flex items-start justify-between mb-2">
         <div>
-          <p className="text-sm font-semibold text-forest">
+          <p className="text-sm font-semibold text-white">
             {formatTimeRange(session.startTime, session.endTime)}
           </p>
-          <p className="text-caption">
+          <Typography.Caption className="!mb-0 uppercase tracking-wider">
             {formatDuration(session.durationMinutes)}
-          </p>
+          </Typography.Caption>
         </div>
         <div className="flex items-center gap-2">
           {moodDisplay && (
             <span
-              className="text-sm px-2 py-1 rounded-pill"
-              style={{ backgroundColor: moodDisplay.bg, color: moodDisplay.color }}
+              className="text-sm px-2 py-1 rounded-full border border-current opacity-80"
+              style={{ backgroundColor: `${moodDisplay.color}20`, color: moodDisplay.color, borderColor: `${moodDisplay.color}40` }}
             >
               {moodDisplay.emoji}
             </span>
@@ -173,7 +175,7 @@ function SessionCard({
           <button
             type="button"
             onClick={onEdit}
-            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-forest/5 transition-colors text-muted hover:text-forest"
+            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-text-secondary hover:text-white"
           >
             <Pencil size={14} />
           </button>
@@ -185,13 +187,13 @@ function SessionCard({
           {session.activities.map((a) => (
             <span
               key={a}
-              className="text-xs px-2 py-1 rounded-pill bg-white text-secondary"
+              className="text-xs px-2 py-1 rounded-full bg-surface border border-white/10 text-text-secondary"
             >
               {a}
             </span>
           ))}
           {session.customActivity && (
-            <span className="text-xs px-2 py-1 rounded-pill bg-gold/15 text-secondary">
+            <span className="text-xs px-2 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent-light">
               {session.customActivity}
             </span>
           )}
@@ -199,7 +201,7 @@ function SessionCard({
       )}
 
       {session.notes && (
-        <p className="text-xs text-muted italic mt-1">
+        <p className="text-xs text-text-secondary italic mt-1 border-l-2 border-white/10 pl-2">
           &ldquo;{session.notes}&rdquo;
         </p>
       )}
