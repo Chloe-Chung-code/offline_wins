@@ -7,7 +7,7 @@ import { startSession, getElapsedMs } from "@/lib/session-manager";
 import type { Session } from "@/lib/types";
 import { getDayTotal, getCurrentStreak } from "@/lib/streak-calculator";
 import { formatDuration, formatDurationFromMs, getTodayDate } from "@/lib/format";
-import ProgressRing from "@/components/ProgressRing";
+// import ProgressRing from "@/components/ProgressRing";
 import ReflectionPrompt from "@/components/ReflectionPrompt";
 import InstallPrompt from "@/components/InstallPrompt";
 
@@ -214,16 +214,16 @@ export default function HomePage() {
 
       {/* Progress Ring */}
       <div className="mb-2">
-        <ProgressRing progress={progress} size={180} strokeWidth={14}>
-          <div className="text-center">
-            <div className="text-number text-forest" style={{ fontSize: "2.5rem" }}>
-              {todayMinutes}
-            </div>
-            <div className="text-caption -mt-1">
-              min
-            </div>
+        {/* <ProgressRing progress={progress} size={180} strokeWidth={14}>
+          <div className="flex flex-col items-center">
+            <span className="text-4xl font-bold text-forest">
+              {Math.round(progress * 100)}%
+            </span>
+            <span className="text-sm font-medium text-secondary uppercase tracking-wider mt-1">
+              Daily Goal
+            </span>
           </div>
-        </ProgressRing>
+        </ProgressRing> */}
       </div>
 
       <p className="text-caption mb-8">
