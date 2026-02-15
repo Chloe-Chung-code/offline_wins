@@ -20,18 +20,28 @@ const config: Config = {
         sans: ["var(--font-inter)"],
       },
       keyframes: {
-        breathe: {
-          "0%, 100%": { transform: "scale(1)", opacity: "0.5" },
-          "50%": { transform: "scale(1.05)", opacity: "0.8" },
+        "breathing-glow": {
+          "0%, 100%": { transform: "scale(1)", borderColor: "rgba(99, 102, 241, 0.1)", boxShadow: "0 0 0 0 rgba(99, 102, 241, 0)" },
+          "50%": { transform: "scale(1.05)", borderColor: "rgba(99, 102, 241, 0.3)", boxShadow: "0 0 20px 0 rgba(99, 102, 241, 0.2)" },
         },
-        ripple: {
+        "ripple-expand": {
           "0%": { transform: "scale(0)", opacity: "1" },
           "100%": { transform: "scale(4)", opacity: "0" },
         },
+        "pulse-slow": {
+          "0%, 100%": { opacity: "0.4", transform: "scale(1)" },
+          "50%": { opacity: "0.7", transform: "scale(1.1)" },
+        },
+        "fade-in-up": {
+          "0%": { opacity: "0", transform: "translateY(10px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
-        breathe: "breathe 8s ease-in-out infinite", // 4s in, 4s out
-        ripple: "ripple 1.5s cubic-bezier(0, 0, 0.2, 1) forwards",
+        "breathing-glow": "breathing-glow 4s ease-in-out infinite",
+        "ripple-expand": "ripple-expand 1.5s cubic-bezier(0, 0, 0.2, 1) forwards",
+        "pulse-slow": "pulse-slow 3s ease-in-out infinite",
+        "fade-in-up": "fade-in-up 0.5s ease-out forwards",
       },
     },
   },

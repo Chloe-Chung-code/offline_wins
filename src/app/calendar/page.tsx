@@ -8,7 +8,7 @@ import { getDayMood, getMoodDisplay } from "@/lib/mood-calculator";
 import { getDayTotal, isGoalMet, getCurrentStreak } from "@/lib/streak-calculator";
 import { formatDuration, getTodayDate } from "@/lib/format";
 import { getMonthDays, formatMonthYear, formatDateString } from "@/lib/calendar-utils";
-import ProgressRing from "@/components/ProgressRing";
+// import ProgressRing from "@/components/ProgressRing";
 import DayDetailSheet from "@/components/DayDetailSheet";
 import type { Session } from "@/lib/types";
 
@@ -150,11 +150,11 @@ export default function CalendarPage() {
           </div>
         )}
         <div className="flex items-center gap-2">
-          <ProgressRing progress={todayProgress} size={36} strokeWidth={3}>
-            <span className="text-[8px] font-bold text-forest">
-              {todayMinutes}m
-            </span>
-          </ProgressRing>
+          {/* <ProgressRing progress={todayProgress} size={36} strokeWidth={3}>
+            <div className="text-[10px] font-bold text-forest">
+              {Math.round(todayProgress * 100)}
+            </div>
+          </ProgressRing> */}
           <span className="text-caption">today</span>
         </div>
       </div>
@@ -190,23 +190,22 @@ export default function CalendarPage() {
                 type="button"
                 onClick={() => !isFuture && handleDayClick(day)}
                 disabled={isFuture}
-                className={`aspect-square rounded-sm flex flex-col items-center justify-center relative transition-all duration-200 ${
-                  isFuture
-                    ? "text-muted/40 cursor-default"
-                    : isToday
+                className={`aspect-square rounded-sm flex flex-col items-center justify-center relative transition-all duration-200 ${isFuture
+                  ? "text-muted/40 cursor-default"
+                  : isToday
                     ? "ring-2 ring-forest"
                     : hasSessions
-                    ? "hover:shadow-soft"
-                    : ""
-                }`}
+                      ? "hover:shadow-soft"
+                      : ""
+                  }`}
                 style={{
                   backgroundColor: moodDisplay
                     ? moodDisplay.bg
                     : isFuture
-                    ? "#F5F2E8"
-                    : hasSessions
-                    ? "#EDE9D8"
-                    : "#F5F2E8",
+                      ? "#F5F2E8"
+                      : hasSessions
+                        ? "#EDE9D8"
+                        : "#F5F2E8",
                 }}
               >
                 <span

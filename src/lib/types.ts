@@ -29,3 +29,5 @@ export interface DayOverride {
   overrideMood: number;
   updatedAt: string;
 }
+
+export type TimerStatus = "idle" | "running" | "paused" | "completed";
