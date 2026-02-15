@@ -19,7 +19,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#1B4332",
+  themeColor: "#FEFAE0",
 };
 
 export default function RootLayout({
@@ -31,7 +31,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="font-sans antialiased bg-cream text-forest min-h-screen">
         <ServiceWorkerRegistrar />
-        <main className="max-w-md mx-auto min-h-screen pb-20">
+        <main className="max-w-md mx-auto min-h-screen pb-16">
           {children}
         </main>
         <BottomNav />

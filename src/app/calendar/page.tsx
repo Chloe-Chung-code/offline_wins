@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { getSettings, getSessions } from "@/lib/storage";
 import { getDayMood, getMoodDisplay } from "@/lib/mood-calculator";
 import { getDayTotal, isGoalMet, getCurrentStreak } from "@/lib/streak-calculator";
@@ -37,7 +38,6 @@ export default function CalendarPage() {
     setAllSessions(getSessions());
   }, [router]);
 
-  // Refresh data when sheet closes or month changes
   function refreshData() {
     setAllSessions(getSessions());
     setTodayMinutes(getDayTotal(getTodayDate()));
@@ -52,13 +52,11 @@ export default function CalendarPage() {
   const todayStr = getTodayDate();
   const todayProgress = goalMinutes > 0 ? todayMinutes / goalMinutes : 0;
 
-  // Month sessions for Best Moments and Activity Breakdown
   const monthSessions = useMemo(() => {
     const monthPrefix = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}`;
     return allSessions.filter((s) => s.date.startsWith(monthPrefix));
   }, [allSessions, currentYear, currentMonth]);
 
-  // Best moments: top 3 highest-mood sessions
   const bestMoments = useMemo(() => {
     return monthSessions
       .filter((s) => s.moodRating !== null)
@@ -66,7 +64,6 @@ export default function CalendarPage() {
       .slice(0, 3);
   }, [monthSessions]);
 
-  // Activity breakdown
   const activityBreakdown = useMemo(() => {
     const counts: Record<string, { count: number; totalMood: number; moodCount: number }> = {};
     for (const s of monthSessions) {
@@ -88,8 +85,6 @@ export default function CalendarPage() {
       .sort((a, b) => b.count - a.count);
   }, [monthSessions]);
 
-  const maxActivityCount = activityBreakdown.length > 0 ? activityBreakdown[0].count : 1;
-
   function prevMonth() {
     if (currentMonth === 0) {
       setCurrentMonth(11);
@@ -110,7 +105,6 @@ export default function CalendarPage() {
 
   function handleDayClick(day: number) {
     const dateStr = formatDateString(currentYear, currentMonth, day);
-    // Only open detail if there are sessions or it's today/past
     if (dateStr <= todayStr) {
       setSelectedDate(dateStr);
     }
@@ -132,51 +126,49 @@ export default function CalendarPage() {
         <button
           type="button"
           onClick={prevMonth}
-          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-forest/10 transition-colors text-forest/60 min-h-[44px] min-w-[44px]"
+          className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-forest/5 transition-colors text-secondary"
         >
-          ←
+          <ChevronLeft size={20} />
         </button>
-        <h1 className="text-lg font-bold text-forest">
+        <h1 className="text-heading text-forest">
           {formatMonthYear(currentYear, currentMonth)}
         </h1>
         <button
           type="button"
           onClick={nextMonth}
-          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-forest/10 transition-colors text-forest/60 min-h-[44px] min-w-[44px]"
+          className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-forest/5 transition-colors text-secondary"
         >
-          →
+          <ChevronRight size={20} />
         </button>
       </div>
 
-      {/* Streak + Today's Progress */}
+      {/* Streak + Today */}
       <div className="flex items-center justify-center gap-4 mb-5">
         {streak > 0 && (
-          <div className="px-4 py-1.5 rounded-pill bg-gold/20 text-forest text-sm font-semibold">
+          <div className="px-3 py-1.5 rounded-pill bg-gold/20 text-forest text-xs font-semibold">
             🔥 {streak} day streak
           </div>
         )}
         <div className="flex items-center gap-2">
-          <ProgressRing progress={todayProgress} size={40} strokeWidth={4}>
-            <span className="text-[9px] font-bold text-forest">
-              {formatDuration(todayMinutes)}
+          <ProgressRing progress={todayProgress} size={36} strokeWidth={3}>
+            <span className="text-[8px] font-bold text-forest">
+              {todayMinutes}m
             </span>
           </ProgressRing>
-          <span className="text-xs text-forest/50">today</span>
+          <span className="text-caption">today</span>
         </div>
       </div>
 
       {/* Calendar Grid */}
-      <div className="mb-6">
-        {/* Weekday headers */}
-        <div className="grid grid-cols-7 gap-1 mb-1">
+      <div className="mb-8">
+        <div className="grid grid-cols-7 gap-1 mb-2">
           {WEEKDAYS.map((d, i) => (
-            <div key={i} className="text-center text-xs font-medium text-forest/40 py-1">
+            <div key={i} className="text-center text-caption py-1">
               {d}
             </div>
           ))}
         </div>
 
-        {/* Day cells */}
         <div className="grid grid-cols-7 gap-1">
           {days.map((day, idx) => {
             if (day === null) {
@@ -190,7 +182,7 @@ export default function CalendarPage() {
             const moodDisplay = mood !== null ? getMoodDisplay(mood) : null;
             const daySessions = !isFuture ? getSessions(dateStr) : [];
             const hasSessions = daySessions.length > 0;
-            const goalMetToday = !isFuture && hasSessions ? isGoalMet(dateStr) : false;
+            const goalMetDay = !isFuture && hasSessions ? isGoalMet(dateStr) : false;
 
             return (
               <button
@@ -198,51 +190,48 @@ export default function CalendarPage() {
                 type="button"
                 onClick={() => !isFuture && handleDayClick(day)}
                 disabled={isFuture}
-                className={`aspect-square rounded-[10px] flex flex-col items-center justify-center relative transition-all text-xs ${
+                className={`aspect-square rounded-sm flex flex-col items-center justify-center relative transition-all duration-200 ${
                   isFuture
-                    ? "bg-[#F9FAFB] text-forest/20 cursor-default"
+                    ? "text-muted/40 cursor-default"
                     : isToday
-                    ? "ring-2 ring-forest/40"
-                    : ""
-                } ${
-                  moodDisplay
-                    ? ""
+                    ? "ring-2 ring-forest"
                     : hasSessions
-                    ? "bg-[#F9FAFB]"
-                    : "bg-[#F9FAFB]"
+                    ? "hover:shadow-soft"
+                    : ""
                 }`}
-                style={
-                  moodDisplay
-                    ? { backgroundColor: moodDisplay.bg }
-                    : undefined
-                }
+                style={{
+                  backgroundColor: moodDisplay
+                    ? moodDisplay.bg
+                    : isFuture
+                    ? "#F5F2E8"
+                    : hasSessions
+                    ? "#EDE9D8"
+                    : "#F5F2E8",
+                }}
               >
-                {/* Date number */}
                 <span
-                  className={`text-[11px] font-medium leading-none ${
-                    moodDisplay ? "" : "text-forest/60"
-                  }`}
-                  style={moodDisplay ? { color: moodDisplay.color } : undefined}
+                  className="text-[11px] font-medium leading-none"
+                  style={{ color: moodDisplay ? moodDisplay.color : isFuture ? "#95A5A0" : "#52796F" }}
                 >
                   {day}
                 </span>
 
-                {/* Mood emoji */}
                 {moodDisplay && (
-                  <span className="text-sm leading-none mt-0.5">
+                  <span className="text-[18px] leading-none mt-0.5">
                     {moodDisplay.emoji}
                   </span>
                 )}
 
-                {/* Dot for sessions with no mood */}
                 {!moodDisplay && hasSessions && (
-                  <div className="w-1.5 h-1.5 rounded-full bg-forest/30 mt-0.5" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-secondary/40 mt-0.5" />
                 )}
 
-                {/* Goal met checkmark */}
-                {goalMetToday && (
-                  <span className="absolute top-0.5 right-0.5 text-[8px] leading-none">
-                    ✅
+                {goalMetDay && (
+                  <span
+                    className="absolute top-0.5 right-0.5 text-[10px] leading-none font-bold"
+                    style={{ color: moodDisplay ? moodDisplay.color : "#1B4332" }}
+                  >
+                    ✓
                   </span>
                 )}
               </button>
@@ -253,23 +242,22 @@ export default function CalendarPage() {
 
       {/* Empty state */}
       {!hasAnySessions && (
-        <div className="text-center py-8">
-          <p className="text-forest/40 text-sm mb-2">No sessions yet</p>
-          <p className="text-forest/30 text-xs">
-            Start your first offline session! 🌿
-            <br />
-            Head to the Home tab to begin.
+        <div className="text-center py-12">
+          <div className="text-4xl mb-3">🌿</div>
+          <p className="text-secondary text-body mb-1">No sessions yet</p>
+          <p className="text-caption">
+            Start your first offline session from the Home tab
           </p>
         </div>
       )}
 
       {/* Best Moments */}
       {bestMoments.length > 0 && (
-        <div className="mb-6">
-          <h2 className="text-sm font-semibold text-forest/70 mb-3">
-            Your best offline moments this month ✨
+        <div className="mb-8">
+          <h2 className="text-heading text-forest mb-4">
+            Best moments ✨
           </h2>
-          <div className="space-y-2">
+          <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-1">
             {bestMoments.map((session) => {
               const moodDisplay = session.moodRating
                 ? getMoodDisplay(session.moodRating)
@@ -279,24 +267,25 @@ export default function CalendarPage() {
                   key={session.id}
                   type="button"
                   onClick={() => setSelectedDate(session.date)}
-                  className="w-full bg-white/60 rounded-card p-3 shadow-sm flex items-center gap-3 text-left hover:bg-white/80 transition-colors"
+                  className="flex-shrink-0 w-[200px] bg-white rounded-lg p-4 shadow-soft text-left transition-all duration-200 hover:shadow-medium"
+                  style={{ borderLeft: moodDisplay ? `3px solid ${moodDisplay.color}` : undefined }}
                 >
                   {moodDisplay && (
-                    <span
-                      className="text-xl w-9 h-9 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: moodDisplay.bg }}
-                    >
+                    <span className="text-[32px] leading-none">
                       {moodDisplay.emoji}
                     </span>
                   )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-forest/50">{session.date}</p>
-                    <p className="text-sm font-medium text-forest truncate">
-                      {formatDuration(session.durationMinutes)}
-                      {session.activities.length > 0 &&
-                        ` — ${session.activities[0]}`}
-                    </p>
-                  </div>
+                  <p className="text-sm font-medium text-forest mt-2">
+                    {formatDuration(session.durationMinutes)}
+                  </p>
+                  {session.activities.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {session.activities.slice(0, 2).map((a) => (
+                        <span key={a} className="text-[11px] text-secondary">{a}</span>
+                      ))}
+                    </div>
+                  )}
+                  <p className="text-caption mt-1">{session.date}</p>
                 </button>
               );
             })}
@@ -306,41 +295,26 @@ export default function CalendarPage() {
 
       {/* Activity Breakdown */}
       {activityBreakdown.length > 0 && (
-        <div className="mb-6">
-          <h2 className="text-sm font-semibold text-forest/70 mb-3">
-            What you do offline 📊
+        <div className="mb-8">
+          <h2 className="text-heading text-forest mb-4">
+            Your activities
           </h2>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {activityBreakdown.map(({ activity, count, avgMood }) => (
-              <div key={activity}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm text-forest">{activity}</span>
-                  <span className="text-xs text-forest/50">
-                    {count}x
-                    {avgMood !== null && (
-                      <>
-                        {" "}
-                        · avg {getMoodDisplay(Math.round(avgMood)).emoji}{" "}
-                        {avgMood.toFixed(1)}
-                      </>
-                    )}
-                  </span>
-                </div>
-                <div className="h-2 rounded-full bg-forest/10 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-forest/40 transition-all duration-500"
-                    style={{
-                      width: `${(count / maxActivityCount) * 100}%`,
-                    }}
-                  />
-                </div>
+              <div key={activity} className="flex items-center justify-between">
+                <span className="text-body text-forest">{activity}</span>
+                <span className="text-caption">
+                  {count}x
+                  {avgMood !== null && (
+                    <> · {getMoodDisplay(Math.round(avgMood)).emoji} {avgMood.toFixed(1)}</>
+                  )}
+                </span>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Day Detail Sheet */}
       {selectedDate && (
         <DayDetailSheet date={selectedDate} onClose={handleSheetClose} />
       )}

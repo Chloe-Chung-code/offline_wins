@@ -1,7 +1,7 @@
 "use client";
 
 interface ProgressRingProps {
-  progress: number; // 0 to 1
+  progress: number;
   size?: number;
   strokeWidth?: number;
   children?: React.ReactNode;
@@ -9,7 +9,7 @@ interface ProgressRingProps {
 
 export default function ProgressRing({
   progress,
-  size = 200,
+  size = 180,
   strokeWidth = 12,
   children,
 }: ProgressRingProps) {
@@ -17,27 +17,26 @@ export default function ProgressRing({
   const circumference = 2 * Math.PI * radius;
   const clampedProgress = Math.min(1, Math.max(0, progress));
   const dashOffset = circumference * (1 - clampedProgress);
+  const goalMet = clampedProgress >= 1;
 
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="transform -rotate-90">
-        {/* Background circle */}
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="#1B433220"
+          stroke="#D8F3DC"
           strokeWidth={strokeWidth}
           strokeLinecap="round"
         />
-        {/* Progress circle */}
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke={clampedProgress >= 1 ? "#F2A93B" : "#1B4332"}
+          stroke={goalMet ? "#F2A93B" : "#1B4332"}
           strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeDasharray={circumference}

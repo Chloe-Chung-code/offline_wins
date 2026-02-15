@@ -79,20 +79,18 @@ export default function ReflectionPrompt() {
     >
       <div className="absolute inset-0 bg-black/30" />
       <div
-        className="relative bg-cream rounded-card p-6 w-full max-w-sm shadow-2xl animate-fade_in_up"
+        className="relative bg-white rounded-lg p-6 w-full max-w-[320px] shadow-medium animate-fade_in_up"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-lg font-bold text-forest mb-2 text-center">
-          How was yesterday&apos;s offline time?
+        <h2 className="text-heading text-forest mb-2 text-center">
+          Yesterday&apos;s offline time
         </h2>
-        <p className="text-sm text-forest/60 text-center mb-6">
-          You had {sessionCount} sessions.
-          {moodDisplay && (
-            <> Your best moment was {moodDisplay.emoji}.</>
-          )}
+        <p className="text-body text-secondary text-center mb-2">
+          {sessionCount} sessions
+          {moodDisplay && <> · best: {moodDisplay.emoji}</>}
         </p>
-        <p className="text-sm text-forest/70 text-center mb-6">
-          Does this represent your day overall?
+        <p className="text-body text-secondary text-center mb-6">
+          Does this represent your day?
         </p>
 
         {showMoodPicker ? (
@@ -104,7 +102,7 @@ export default function ReflectionPrompt() {
             <button
               type="button"
               onClick={handleSaveMood}
-              className="w-full py-3 rounded-pill bg-forest text-cream font-medium min-h-[44px]"
+              className="w-full py-3 rounded-pill bg-forest text-white font-medium min-h-[44px] transition-all duration-200"
             >
               Save
             </button>
@@ -114,23 +112,24 @@ export default function ReflectionPrompt() {
             <button
               type="button"
               onClick={handleKeep}
-              className="w-full py-3 rounded-pill bg-forest text-cream font-medium min-h-[44px]"
+              className="w-full py-3 rounded-pill bg-forest text-white font-medium min-h-[44px] transition-all duration-200"
             >
-              ✅ Yes, keep it
+              Keep it
             </button>
             <button
               type="button"
               onClick={handleChange}
-              className="w-full py-3 rounded-pill bg-cream-dark text-forest font-medium min-h-[44px]"
+              className="w-full py-3 rounded-pill text-forest font-medium min-h-[44px] transition-all duration-200"
+              style={{ border: "1.5px solid rgba(27, 67, 50, 0.15)" }}
             >
-              🔄 Change
+              Change
             </button>
             <button
               type="button"
               onClick={handleSkip}
-              className="w-full py-3 text-forest/50 text-sm font-medium hover:text-forest/70 transition-colors min-h-[44px]"
+              className="w-full py-3 text-muted text-sm font-medium hover:text-secondary transition-colors min-h-[44px]"
             >
-              ⏭️ Skip
+              Skip
             </button>
           </div>
         )}

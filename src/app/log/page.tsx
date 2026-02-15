@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { getActiveSession, saveSession, updateSession, getSessions } from "@/lib/storage";
 import { endSession } from "@/lib/session-manager";
 import { formatDuration } from "@/lib/format";
+import { ChevronLeft } from "lucide-react";
 import MoodSelector from "@/components/MoodSelector";
 import ActivityChips from "@/components/ActivityChips";
 import type { Session } from "@/lib/types";
@@ -28,17 +29,17 @@ function LogContent() {
 
   const fireConfetti = useCallback(() => {
     confetti({
-      particleCount: 100,
+      particleCount: 80,
       spread: 70,
       origin: { y: 0.3 },
-      colors: ["#1B4332", "#F2A93B", "#E76F51", "#FEFAE0"],
+      colors: ["#F2A93B", "#95D5B2", "#1B4332", "#FEFAE0"],
     });
     setTimeout(() => {
       confetti({
-        particleCount: 50,
+        particleCount: 40,
         spread: 100,
         origin: { y: 0.4 },
-        colors: ["#1B4332", "#F2A93B", "#E76F51"],
+        colors: ["#F2A93B", "#95D5B2"],
       });
     }, 200);
   }, []);
@@ -46,7 +47,6 @@ function LogContent() {
   useEffect(() => {
     setMounted(true);
 
-    // Edit mode
     if (editId) {
       const sessions = getSessions();
       const session = sessions.find((s) => s.id === editId);
@@ -62,11 +62,9 @@ function LogContent() {
       return;
     }
 
-    // Returning user with active session
     if (isReturning) {
       const active = getActiveSession();
       if (active) {
-        // End the session
         const stub = endSession();
         if (stub) {
           setSessionStub(stub);
@@ -77,14 +75,12 @@ function LogContent() {
       }
     }
 
-    // Normal flow: session was just ended from Home page
     const stub = endSession();
     if (stub) {
       setSessionStub(stub);
       setDurationMinutes(stub.durationMinutes);
       setTimeout(fireConfetti, 300);
     } else {
-      // No active session to end, redirect home
       router.replace("/");
     }
   }, [editId, isReturning, router, fireConfetti]);
@@ -124,11 +120,10 @@ function LogContent() {
       saveSession(fullSession);
     }
 
-    // Brief celebration
     setShowCelebration(true);
     fireConfetti();
     setTimeout(() => {
-      router.push(isEdit ? "/calendar" : "/calendar");
+      router.push("/calendar");
     }, 1200);
   }
 
@@ -152,12 +147,11 @@ function LogContent() {
     router.push("/calendar");
   }
 
-  // Celebration overlay
   if (showCelebration) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 page-transition">
         <div className="text-6xl mb-4 animate-bounce">🎉</div>
-        <h1 className="text-2xl font-bold text-forest">
+        <h1 className="text-heading text-forest">
           {isEdit ? "Updated!" : "Saved!"}
         </h1>
       </div>
@@ -171,24 +165,23 @@ function LogContent() {
         <button
           type="button"
           onClick={() => router.back()}
-          className="self-start mb-4 text-forest/60 text-sm font-medium min-h-[44px] flex items-center"
+          className="self-start mb-4 text-secondary text-sm font-medium min-h-[44px] flex items-center gap-1 transition-colors hover:text-forest"
         >
-          ← Back
+          <ChevronLeft size={18} />
+          Back
         </button>
       )}
 
-      {/* Celebration Header */}
-      <div className="text-center mb-8">
-        <div className="text-5xl mb-3">🎉</div>
-        <h1 className="text-2xl font-bold text-forest mb-1">
-          {isReturning
-            ? `Welcome back! You were offline for ${formatDuration(durationMinutes)}!`
-            : isEdit
-            ? "Edit Session"
-            : `You were offline for ${formatDuration(durationMinutes)}!`}
-        </h1>
+      {/* Duration card */}
+      <div className="bg-white rounded-lg p-6 shadow-soft text-center mb-8">
+        <p className="text-caption mb-1">
+          {isEdit ? "Session duration" : "You were offline for"}
+        </p>
+        <div className="text-number text-forest">
+          {formatDuration(durationMinutes)}
+        </div>
         {!isEdit && (
-          <p className="text-forest/60 text-sm">
+          <p className="text-secondary text-body mt-1">
             That&apos;s awesome. What did you get up to?
           </p>
         )}
@@ -196,7 +189,7 @@ function LogContent() {
 
       {/* Activities */}
       <div className="mb-8">
-        <h2 className="text-sm font-semibold text-forest/70 mb-3">
+        <h2 className="text-heading text-forest mb-4">
           What did you do?
         </h2>
         <ActivityChips selected={activities} onToggle={toggleActivity} />
@@ -204,22 +197,22 @@ function LogContent() {
           type="text"
           value={customActivity}
           onChange={(e) => setCustomActivity(e.target.value)}
-          placeholder="Or describe what you did..."
-          className="mt-3 w-full px-4 py-3 rounded-card bg-white/80 text-forest placeholder:text-forest/30 outline-none focus:ring-2 focus:ring-forest/30 shadow-sm text-sm"
+          placeholder="Something else..."
+          className="mt-4 w-full py-3 bg-transparent text-forest placeholder:text-muted outline-none text-body border-b-2 border-forest/10 focus:border-forest/40 transition-colors"
         />
       </div>
 
       {/* Mood */}
       <div className="mb-8">
-        <h2 className="text-sm font-semibold text-forest/70 mb-3">
-          How do you feel?
+        <h2 className="text-heading text-forest mb-4">
+          How did it feel?
         </h2>
         <MoodSelector selected={moodRating} onSelect={setMoodRating} />
       </div>
 
       {/* Notes */}
       <div className="mb-10">
-        <h2 className="text-sm font-semibold text-forest/70 mb-3">
+        <h2 className="text-heading text-forest mb-4">
           Any thoughts?
         </h2>
         <textarea
@@ -227,26 +220,26 @@ function LogContent() {
           onChange={(e) => setNotes(e.target.value)}
           placeholder="What made this time special?"
           rows={3}
-          className="w-full px-4 py-3 rounded-card bg-white/80 text-forest placeholder:text-forest/30 outline-none focus:ring-2 focus:ring-forest/30 shadow-sm text-sm resize-none"
+          className="w-full px-4 py-4 rounded-card bg-white text-forest placeholder:text-muted outline-none shadow-soft text-body resize-none transition-shadow focus:shadow-medium"
         />
       </div>
 
       {/* Action Buttons */}
-      <div className="mt-auto space-y-3 pb-8">
+      <div className="mt-auto space-y-4 pb-8">
         <button
           type="button"
           onClick={handleSave}
-          className="w-full py-4 px-8 bg-forest text-cream text-lg font-semibold rounded-pill shadow-lg hover:bg-forest-light active:scale-[0.98] transition-all min-h-[56px]"
+          className="w-full py-4 bg-forest text-white text-lg font-semibold rounded-pill shadow-button active:scale-[0.98] transition-all duration-200 min-h-[56px]"
         >
-          {isEdit ? "Save Changes" : "Save 🎉"}
+          {isEdit ? "Save Changes" : "Save"}
         </button>
         {!isEdit && (
           <button
             type="button"
             onClick={handleSkip}
-            className="w-full py-3 text-forest/50 text-sm font-medium hover:text-forest/70 transition-colors min-h-[44px]"
+            className="w-full py-3 text-muted text-sm font-medium hover:text-secondary transition-colors min-h-[44px]"
           >
-            Skip
+            Just save the time
           </button>
         )}
       </div>
@@ -258,7 +251,7 @@ export default function LogPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-forest/40">Loading...</div>
+        <div className="text-muted">Loading...</div>
       </div>
     }>
       <LogContent />

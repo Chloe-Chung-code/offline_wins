@@ -33,7 +33,6 @@ export default function SettingsPage() {
     }
     setGoalMinutes(settings.dailyGoalMinutes);
 
-    // Check if current goal matches a preset
     const matchesPreset = GOAL_PRESETS.some((p) => p.minutes === settings.dailyGoalMinutes);
     if (!matchesPreset) {
       setIsCustom(true);
@@ -86,11 +85,11 @@ export default function SettingsPage() {
 
   return (
     <div className="px-6 py-8 page-transition">
-      <h1 className="text-2xl font-bold text-forest mb-8">Settings</h1>
+      <h1 className="text-display text-forest mb-8">Settings</h1>
 
       {/* Daily Goal */}
-      <section className="mb-8">
-        <h2 className="text-sm font-semibold text-forest/70 mb-3">
+      <section className="bg-white rounded-lg p-5 shadow-soft mb-6">
+        <h2 className="text-caption mb-4">
           Daily offline goal
         </h2>
         <div className="flex flex-wrap gap-2 mb-3">
@@ -99,10 +98,10 @@ export default function SettingsPage() {
               key={preset.minutes}
               type="button"
               onClick={() => handlePresetClick(preset.minutes)}
-              className={`px-5 py-3 rounded-pill text-sm font-semibold min-h-[44px] transition-all duration-200 ${
+              className={`px-5 py-2.5 rounded-pill text-sm font-semibold min-h-[44px] transition-all duration-200 ${
                 goalMinutes === preset.minutes && !isCustom
-                  ? "bg-forest text-cream shadow-md"
-                  : "bg-white/80 text-forest hover:bg-forest/10"
+                  ? "bg-forest text-white shadow-medium"
+                  : "bg-cream text-forest shadow-soft"
               }`}
             >
               {preset.label}
@@ -111,36 +110,36 @@ export default function SettingsPage() {
           <button
             type="button"
             onClick={handleCustomClick}
-            className={`px-5 py-3 rounded-pill text-sm font-semibold min-h-[44px] transition-all duration-200 ${
+            className={`px-5 py-2.5 rounded-pill text-sm font-semibold min-h-[44px] transition-all duration-200 ${
               isCustom
-                ? "bg-forest text-cream shadow-md"
-                : "bg-white/80 text-forest hover:bg-forest/10"
+                ? "bg-forest text-white shadow-medium"
+                : "bg-cream text-forest shadow-soft"
             }`}
           >
             Custom
           </button>
         </div>
         {isCustom && (
-          <div className="flex items-center gap-2 animate-fade_in_up">
+          <div className="flex items-center gap-3 animate-fade_in_up mt-2">
             <input
               type="number"
               value={customGoal}
               onChange={(e) => handleCustomChange(e.target.value)}
               placeholder="Minutes"
               min={1}
-              className="w-24 px-4 py-3 rounded-card bg-white/80 text-forest placeholder:text-forest/30 outline-none focus:ring-2 focus:ring-forest/30 shadow-sm"
+              className="w-24 py-2.5 bg-transparent text-forest placeholder:text-muted outline-none text-body border-b-2 border-forest/10 focus:border-forest/40 transition-colors text-center"
             />
-            <span className="text-sm text-forest/60">minutes per day</span>
+            <span className="text-caption">minutes per day</span>
           </div>
         )}
-        <p className="text-xs text-forest/50 mt-2">
-          Current goal: <span className="font-semibold">{formatDuration(goalMinutes)}</span> per day
+        <p className="text-caption mt-3">
+          Current: <span className="font-semibold text-forest">{formatDuration(goalMinutes)}</span> per day
         </p>
       </section>
 
       {/* Lifetime Stats */}
-      <section className="mb-8">
-        <h2 className="text-sm font-semibold text-forest/70 mb-3">
+      <section className="bg-white rounded-lg p-5 shadow-soft mb-6">
+        <h2 className="text-caption mb-4">
           Lifetime stats
         </h2>
         <div className="grid grid-cols-2 gap-3">
@@ -152,54 +151,52 @@ export default function SettingsPage() {
       </section>
 
       {/* Clear Data */}
-      <section className="mb-8">
+      <div className="text-center mt-8">
         <button
           type="button"
           onClick={() => setShowClearConfirm(true)}
-          className="w-full py-3 rounded-pill bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 transition-colors min-h-[44px]"
+          className="text-sunset text-sm font-medium min-h-[44px] transition-colors hover:text-sunset-light"
         >
           Clear all data
         </button>
-      </section>
-
-      {/* App Info */}
-      <div className="text-center text-xs text-forest/30 mt-12">
-        Offline Wins v1.0 — Built by AxxLabs
       </div>
 
-      {/* Goal Saved Toast */}
+      {/* App Info */}
+      <div className="text-center text-caption mt-8">
+        Offline Wins v1.0 · AxxLabs 🌿
+      </div>
+
+      {/* Toast */}
       {showToast && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-pill bg-forest text-cream text-sm font-semibold shadow-lg animate-fade_in_up"
-          style={{ animation: "fade_in_up 0.3s ease-out, fade_in_up 0.3s ease-in 1.7s reverse forwards" }}
-        >
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-pill bg-forest text-white text-sm font-semibold shadow-medium toast-animate">
           Goal updated!
         </div>
       )}
 
-      {/* Clear Data Confirmation */}
+      {/* Clear Confirmation */}
       {showClearConfirm && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-40 px-6">
-          <div className="bg-cream rounded-card p-6 w-full max-w-sm shadow-xl animate-fade_in_up">
-            <h2 className="text-lg font-bold text-forest mb-2">
+          <div className="bg-white rounded-lg p-6 w-full max-w-sm shadow-medium animate-fade_in_up">
+            <h2 className="text-heading text-forest mb-2">
               Delete everything?
             </h2>
-            <p className="text-forest/60 text-sm mb-6">
+            <p className="text-secondary text-body mb-6">
               This will delete all your offline sessions and settings. This cannot be undone.
             </p>
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setShowClearConfirm(false)}
-                className="flex-1 py-3 rounded-pill bg-cream-dark text-forest font-medium min-h-[44px]"
+                className="flex-1 py-3 text-secondary font-medium min-h-[44px] transition-all duration-200"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleClearData}
-                className="flex-1 py-3 rounded-pill bg-red-600 text-white font-medium min-h-[44px]"
+                className="flex-1 py-3 rounded-pill bg-sunset text-white font-medium min-h-[44px] transition-all duration-200"
               >
-                Delete Everything
+                Delete
               </button>
             </div>
           </div>
@@ -219,9 +216,9 @@ function StatCard({
   small?: boolean;
 }) {
   return (
-    <div className="bg-white/60 rounded-card p-4 shadow-sm">
-      <p className="text-xs text-forest/50 mb-1">{label}</p>
-      <p className={`font-bold text-forest ${small ? "text-sm" : "text-xl"}`}>
+    <div className="bg-cream rounded-card p-4">
+      <p className="text-caption mb-1">{label}</p>
+      <p className={`font-bold text-forest ${small ? "text-sm" : "text-display"}`}>
         {value}
       </p>
     </div>

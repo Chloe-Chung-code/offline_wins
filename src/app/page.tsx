@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { getSettings, getActiveSession, clearActiveSession, saveSession } from "@/lib/storage";
+import { getSettings, getActiveSession, clearActiveSession, saveSession, getSessions } from "@/lib/storage";
 import { startSession, getElapsedMs } from "@/lib/session-manager";
 import type { Session } from "@/lib/types";
 import { getDayTotal, getCurrentStreak } from "@/lib/streak-calculator";
@@ -22,6 +22,8 @@ export default function HomePage() {
   const [userName, setUserName] = useState<string | null>(null);
   const [showConfirmEnd, setShowConfirmEnd] = useState(false);
   const [autoExpireNotice, setAutoExpireNotice] = useState<string | null>(null);
+  const [recentSessions, setRecentSessions] = useState<Session[]>([]);
+  const [startedAt, setStartedAt] = useState("");
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const refreshData = useCallback(() => {
@@ -30,6 +32,8 @@ export default function HomePage() {
     setUserName(settings.name);
     setTodayMinutes(getDayTotal(getTodayDate()));
     setStreak(getCurrentStreak());
+    const all = getSessions();
+    setRecentSessions(all.slice(-3).reverse());
   }, []);
 
   useEffect(() => {
@@ -45,11 +49,10 @@ export default function HomePage() {
     const active = getActiveSession();
     if (active && active.isActive) {
       const startTime = new Date(active.startTime);
-      const elapsedMs = Date.now() - startTime.getTime();
-      const MAX_SESSION_MS = 8 * 60 * 60 * 1000; // 8 hours
+      const elapsed = Date.now() - startTime.getTime();
+      const MAX_SESSION_MS = 8 * 60 * 60 * 1000;
 
-      if (elapsedMs > MAX_SESSION_MS) {
-        // Auto-expire: save session capped at 8 hours
+      if (elapsed > MAX_SESSION_MS) {
         const endTime = new Date(startTime.getTime() + MAX_SESSION_MS);
         const now = new Date().toISOString();
         const expiredSession: Session = {
@@ -73,7 +76,6 @@ export default function HomePage() {
         setAutoExpireNotice(`Your session from ${timeStr} was automatically saved (8h max).`);
         setTimeout(() => setAutoExpireNotice(null), 5000);
       } else {
-        // Normal: go to log screen
         router.replace("/log?returning=true");
         return;
       }
@@ -83,7 +85,6 @@ export default function HomePage() {
     refreshData();
   }, [router, refreshData]);
 
-  // Timer for active session
   useEffect(() => {
     if (hasActiveSession) {
       timerRef.current = setInterval(() => {
@@ -98,6 +99,12 @@ export default function HomePage() {
   if (!mounted) return null;
 
   function handleGoOffline() {
+    const active = getActiveSession();
+    if (active) {
+      setStartedAt(new Date(active.startTime).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }));
+    } else {
+      setStartedAt(new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }));
+    }
     startSession();
     setHasActiveSession(true);
     setElapsedMs(0);
@@ -119,59 +126,57 @@ export default function HomePage() {
   // Active session view
   if (hasActiveSession) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12 page-transition relative">
+      <div className="min-h-screen flex flex-col items-center justify-center px-6 page-transition relative">
         {/* Breathing circle */}
-        <div className="mb-8">
-          <div className="w-32 h-32 rounded-full bg-forest/10 animate-breathe flex items-center justify-center">
-            <div className="w-20 h-20 rounded-full bg-forest/20 flex items-center justify-center">
-              <span className="text-4xl">🌿</span>
-            </div>
-          </div>
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div
+            className="w-64 h-64 rounded-full animate-breathe"
+            style={{ border: "1px solid #95D5B2" }}
+          />
         </div>
 
-        <h1 className="text-2xl font-bold text-forest mb-2">
-          You&apos;re offline! Enjoy.
-        </h1>
-        <p className="text-forest/60 mb-8">Take your time. We&apos;ll be here.</p>
+        <p className="text-secondary text-body mb-4">You&apos;re offline</p>
 
         {/* Timer */}
-        <div className="text-5xl font-bold text-forest tabular-nums mb-12">
+        <div className="text-number text-forest mb-2" style={{ fontSize: "4rem" }}>
           {formatDurationFromMs(elapsedMs)}
         </div>
 
-        {/* End Session Button */}
+        <p className="text-muted text-caption mb-auto">started at {startedAt}</p>
+
+        {/* End Session */}
         <button
           type="button"
           onClick={handleEndSession}
-          className="px-8 py-3 rounded-pill bg-cream-dark text-forest/70 font-medium text-sm hover:bg-forest/10 transition-all min-h-[44px]"
+          className="mb-12 text-secondary text-body font-medium min-h-[44px] transition-colors hover:text-forest"
         >
-          End Session
+          End session &rarr;
         </button>
 
         {/* Confirmation Dialog */}
         {showConfirmEnd && (
           <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-40 px-6">
-            <div className="bg-cream rounded-card p-6 w-full max-w-sm shadow-xl animate-fade_in_up">
-              <h2 className="text-lg font-bold text-forest mb-2">
+            <div className="bg-white rounded-lg p-6 w-full max-w-sm shadow-medium animate-fade_in_up">
+              <h2 className="text-heading text-forest mb-2">
                 End your offline session?
               </h2>
-              <p className="text-forest/60 text-sm mb-6">
+              <p className="text-secondary text-body mb-6">
                 You&apos;ve been offline for {formatDurationFromMs(elapsedMs)}
               </p>
               <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={cancelEndSession}
-                  className="flex-1 py-3 rounded-pill bg-cream-dark text-forest font-medium min-h-[44px]"
+                  className="flex-1 py-3 rounded-pill bg-forest text-white font-medium min-h-[44px] transition-all duration-200"
                 >
                   Keep Going
                 </button>
                 <button
                   type="button"
                   onClick={confirmEndSession}
-                  className="flex-1 py-3 rounded-pill bg-forest text-cream font-medium min-h-[44px]"
+                  className="flex-1 py-3 text-secondary font-medium min-h-[44px] transition-all duration-200"
                 >
-                  Yes, End
+                  End
                 </button>
               </div>
             </div>
@@ -186,63 +191,77 @@ export default function HomePage() {
   const goalMet = progress >= 1;
 
   return (
-    <div className="min-h-screen flex flex-col items-center px-6 py-12 page-transition">
+    <div className="min-h-screen flex flex-col items-center px-6 pt-12 pb-8 page-transition">
       {/* Auto-expire notice */}
       {autoExpireNotice && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-card bg-forest text-cream text-sm font-medium shadow-lg max-w-sm text-center animate-fade_in_up">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-lg bg-forest text-white text-sm font-medium shadow-medium max-w-sm text-center toast-animate">
           {autoExpireNotice}
         </div>
       )}
 
-      {/* Reflection prompt overlay */}
       <ReflectionPrompt />
-
-      {/* Install prompt */}
       <InstallPrompt />
 
-      {/* Greeting */}
-      <div className="text-center mb-8 mt-4">
-        <h1 className="text-2xl font-bold text-forest">
-          Hi {userName || "there"}!
+      {/* Top: Greeting + Streak */}
+      <div className="w-full flex items-center justify-between mb-8">
+        <h1 className="text-heading text-forest">
+          Hi {userName || "there"}
         </h1>
-        <p className="text-forest/60 text-sm mt-1">
-          {goalMet
-            ? "You crushed your goal today! 🎉"
-            : "Ready for some offline time?"}
-        </p>
+        <div className={`px-3 py-1.5 rounded-pill text-xs font-semibold ${streak > 0 ? "bg-gold/20 text-forest" : "bg-forest/5 text-muted"}`}>
+          {streak > 0 ? `🔥 ${streak}` : "🌱 0"}
+        </div>
       </div>
 
       {/* Progress Ring */}
-      <div className="mb-6">
-        <ProgressRing progress={progress} size={200} strokeWidth={14}>
+      <div className="mb-2">
+        <ProgressRing progress={progress} size={180} strokeWidth={14}>
           <div className="text-center">
-            <div className="text-3xl font-bold text-forest">
-              {formatDuration(todayMinutes)}
+            <div className="text-number text-forest" style={{ fontSize: "2.5rem" }}>
+              {todayMinutes}
             </div>
-            <div className="text-xs text-forest/50 mt-1">
-              of {formatDuration(goalMinutes)} goal
+            <div className="text-caption -mt-1">
+              min
             </div>
           </div>
         </ProgressRing>
       </div>
 
-      {/* Streak Badge */}
-      <div className="mb-10 px-5 py-2 rounded-pill bg-gold/20 text-forest text-sm font-semibold animate-fade_in_up">
-        {streak > 0 ? `🔥 ${streak} day streak` : "🌱 Start your streak today!"}
-      </div>
+      <p className="text-caption mb-8">
+        {goalMet ? "Goal reached! ✨" : `of ${goalMinutes}m goal`}
+      </p>
 
       {/* Go Offline Button */}
       <button
         type="button"
         onClick={handleGoOffline}
-        className="w-full max-w-xs py-5 px-8 bg-forest text-cream text-xl font-bold rounded-pill shadow-xl hover:bg-forest-light active:scale-[0.97] transition-all duration-200 animate-pulse_gentle min-h-[64px]"
+        className="w-full max-w-xs py-4 bg-forest text-white text-lg font-semibold rounded-pill shadow-button active:scale-[0.97] transition-all duration-200 animate-pulse_gentle min-h-[64px] mb-8"
       >
-        Go Offline 🌿
+        Go Offline
       </button>
 
-      <p className="text-forest/40 text-xs mt-4">
-        Tap to start tracking your offline time
-      </p>
+      {/* Recent sessions */}
+      {recentSessions.length > 0 && (
+        <div className="w-full space-y-2">
+          {recentSessions.slice(0, 2).map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => router.push("/calendar")}
+              className="w-full bg-white rounded-card p-3 shadow-soft flex items-center gap-3 text-left transition-all duration-200 hover:shadow-medium"
+            >
+              <div className="flex-1 text-sm text-forest">
+                {formatDuration(s.durationMinutes)}
+                {s.activities.length > 0 && ` · ${s.activities[0]}`}
+                {s.moodRating && (() => {
+                  const moods: Record<number, string> = { 1: "😫", 2: "😕", 3: "😐", 4: "😊", 5: "🤩" };
+                  return ` · ${moods[s.moodRating] || ""}`;
+                })()}
+              </div>
+              <span className="text-muted text-xs">{s.date.slice(5)}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

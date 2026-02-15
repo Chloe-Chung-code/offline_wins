@@ -5,6 +5,29 @@
 @tailwind utilities;
 
 :root {
+  /* Core */
+  --bg-primary: #FEFAE0;
+  --bg-secondary: #FFF8E7;
+  --bg-card: #FFFFFF;
+
+  /* Brand */
+  --brand-primary: #1B4332;
+  --brand-secondary: #2D6A4F;
+  --brand-light: #95D5B2;
+  --brand-muted: #D8F3DC;
+
+  /* Accent */
+  --accent-warm: #E76F51;
+  --accent-gold: #F2A93B;
+
+  /* Neutrals */
+  --text-primary: #1B4332;
+  --text-secondary: #52796F;
+  --text-muted: #95A5A0;
+  --border-light: rgba(27, 67, 50, 0.08);
+  --shadow-soft: 0 2px 12px rgba(27, 67, 50, 0.06);
+  --shadow-medium: 0 4px 20px rgba(27, 67, 50, 0.10);
+
   --background: #FEFAE0;
   --foreground: #1B4332;
 }
@@ -12,9 +35,50 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: "Inter", -apple-system, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography utilities */
+.text-display {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.text-heading {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.text-body {
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.text-caption {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.text-number {
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Premium card */
+.card {
+  background: var(--bg-card);
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: var(--shadow-soft);
+  border: none;
 }
 
 /* Custom scrollbar */
@@ -28,7 +92,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1B433240;
+  background: #1B433220;
   border-radius: 999px;
 }
 
@@ -62,7 +126,16 @@ body {
 
 /* Page transition */
 .page-transition {
-  animation: fade_in_up 0.4s ease-out;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fade_in_up {
@@ -99,4 +172,16 @@ body {
   height: 100%;
   pointer-events: none;
   z-index: 50;
+}
+
+/* Toast animation */
+@keyframes toast-in-out {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+  15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+}
+
+.toast-animate {
+  animation: toast-in-out 2s ease-in-out forwards;
 }
