@@ -7,8 +7,20 @@ import { endSession } from "@/lib/session-manager";
 import { formatDuration } from "@/lib/format";
 import { ChevronLeft } from "lucide-react";
 import MoodSelector from "@/components/MoodSelector";
+import RippleEffect from "@/components/timer/RippleEffect";
 import type { Session } from "@/lib/types";
-import confetti from "canvas-confetti";
+
+const ACTIVITY_PRESETS = [
+  { emoji: "📚", label: "Reading" },
+  { emoji: "🚶", label: "Walking" },
+  { emoji: "🏋️", label: "Exercise" },
+  { emoji: "🍳", label: "Cooking" },
+  { emoji: "👥", label: "Socializing" },
+  { emoji: "🧘", label: "Meditation" },
+  { emoji: "🌿", label: "Nature" },
+  { emoji: "🎨", label: "Creating" },
+  { emoji: "🎮", label: "Playing" },
+];
 
 function LogContent() {
   const router = useRouter();
@@ -23,33 +35,27 @@ function LogContent() {
   const [moodRating, setMoodRating] = useState<number | null>(null);
   const [notes, setNotes] = useState("");
   const [durationMinutes, setDurationMinutes] = useState(0);
-  const [showCelebration, setShowCelebration] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
 
-  // Guard against double-calling endSession (React strict mode runs effects twice)
+  // Ripple states
+  const [showEntryRipple, setShowEntryRipple] = useState(false);
+  const [showSaveRipple, setShowSaveRipple] = useState(false);
+  const [formReady, setFormReady] = useState(false);
+
   const hasProcessedRef = useRef(false);
 
-  const fireConfetti = useCallback(() => {
-    confetti({
-      particleCount: 80,
-      spread: 70,
-      origin: { y: 0.3 },
-      colors: ["#3B82F6", "#60A5FA", "#0F172A", "#F8FAFC"],
-    });
-    setTimeout(() => {
-      confetti({
-        particleCount: 40,
-        spread: 100,
-        origin: { y: 0.4 },
-        colors: ["#3B82F6", "#60A5FA"],
-      });
-    }, 200);
+  const handleEntryRippleComplete = useCallback(() => {
+    setShowEntryRipple(false);
+    setFormReady(true);
   }, []);
+
+  const handleSaveRippleComplete = useCallback(() => {
+    router.push("/calendar");
+  }, [router]);
 
   useEffect(() => {
     setMounted(true);
 
-    // Prevent double-execution (React strict mode / re-renders)
     if (hasProcessedRef.current) return;
     hasProcessedRef.current = true;
 
@@ -64,6 +70,7 @@ function LogContent() {
         setCustomActivity(session.customActivity || "");
         setMoodRating(session.moodRating);
         setNotes(session.notes || "");
+        setFormReady(true);
       }
       return;
     }
@@ -75,8 +82,8 @@ function LogContent() {
         if (stub) {
           setSessionStub(stub);
           setDurationMinutes(stub.durationMinutes);
+          setShowEntryRipple(true);
         }
-        setTimeout(fireConfetti, 300);
         return;
       }
     }
@@ -85,14 +92,19 @@ function LogContent() {
     if (stub) {
       setSessionStub(stub);
       setDurationMinutes(stub.durationMinutes);
-      setTimeout(fireConfetti, 300);
+      setShowEntryRipple(true);
     } else {
       router.replace("/");
     }
-  }, [editId, isReturning, router, fireConfetti]);
+  }, [editId, isReturning, router]);
 
   if (!mounted || (!sessionStub && !isEdit)) return null;
 
+  function toggleActivity(label: string) {
+    setActivities((prev) =>
+      prev.includes(label) ? prev.filter((a) => a !== label) : [...prev, label]
+    );
+  }
 
   function handleSave() {
     if (isEdit && editId) {
@@ -119,11 +131,7 @@ function LogContent() {
       saveSession(fullSession);
     }
 
-    setShowCelebration(true);
-    fireConfetti();
-    setTimeout(() => {
-      router.push("/calendar");
-    }, 1200);
+    setShowSaveRipple(true);
   }
 
   function handleSkip() {
@@ -146,16 +154,34 @@ function LogContent() {
     router.push("/calendar");
   }
 
-  if (showCelebration) {
+  // Entry ripple overlay
+  if (showEntryRipple) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6">
-        <div className="text-6xl mb-4 animate-bounce">🎉</div>
-        <h1 className="text-2xl font-bold text-text-primary">
-          {isEdit ? "Updated!" : "Saved!"}
-        </h1>
-      </div>
+      <RippleEffect
+        active={true}
+        onComplete={handleEntryRippleComplete}
+        duration={2000}
+        title="Nice work!"
+        subtitle="Let&rsquo;s log your win."
+      />
     );
   }
+
+  // Save ripple overlay
+  if (showSaveRipple) {
+    return (
+      <RippleEffect
+        active={true}
+        onComplete={handleSaveRippleComplete}
+        duration={1500}
+        title={isEdit ? "Updated!" : "Saved!"}
+        subtitle=""
+      />
+    );
+  }
+
+  // Wait for entry ripple to finish before showing form
+  if (!formReady && !isEdit) return null;
 
   return (
     <div className="min-h-screen flex flex-col px-6 py-8">
@@ -164,7 +190,7 @@ function LogContent() {
         <button
           type="button"
           onClick={() => router.back()}
-          className="self-start mb-4 text-text-secondary text-sm font-medium min-h-[44px] flex items-center gap-1 transition-colors hover:text-text-primary"
+          className="self-start mb-4 text-[#475569] text-sm font-medium min-h-[44px] flex items-center gap-1 transition-colors hover:text-[#0F172A]"
         >
           <ChevronLeft size={18} />
           Back
@@ -172,15 +198,15 @@ function LogContent() {
       )}
 
       {/* Duration card */}
-      <div className="bg-white rounded-lg p-6 shadow-sm text-center mb-8">
-        <p className="text-xs text-text-secondary uppercase tracking-wider mb-1">
+      <div className="bg-white rounded-xl p-6 shadow-sm text-center mb-8">
+        <p className="text-xs uppercase tracking-wider text-[#94A3B8] mb-1">
           {isEdit ? "Session duration" : "You were offline for"}
         </p>
-        <div className="text-4xl font-bold text-text-primary tabular-nums">
+        <div className="text-5xl font-bold text-[#0F172A] tabular-nums">
           {formatDuration(durationMinutes)}
         </div>
         {!isEdit && (
-          <p className="text-text-secondary text-sm mt-1">
+          <p className="text-sm text-[#94A3B8] mt-1">
             That&apos;s awesome. What did you get up to?
           </p>
         )}
@@ -188,21 +214,40 @@ function LogContent() {
 
       {/* Activities */}
       <div className="mb-8">
-        <h2 className="text-lg font-semibold text-text-primary mb-4">
+        <h2 className="text-lg font-semibold text-[#0F172A] mb-4">
           What did you do?
         </h2>
+        <div className="flex flex-wrap gap-2">
+          {ACTIVITY_PRESETS.map((preset) => {
+            const isSelected = activities.includes(preset.label);
+            return (
+              <button
+                key={preset.label}
+                type="button"
+                onClick={() => toggleActivity(preset.label)}
+                className={`px-3 py-2 rounded-full text-sm font-medium min-h-[40px] transition-all duration-150 ${
+                  isSelected
+                    ? "bg-[#0F172A] text-white border border-transparent"
+                    : "bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0]"
+                }`}
+              >
+                {preset.emoji} {preset.label}
+              </button>
+            );
+          })}
+        </div>
         <input
           type="text"
           value={customActivity}
           onChange={(e) => setCustomActivity(e.target.value)}
           placeholder="Something else..."
-          className="mt-4 w-full py-3 bg-transparent text-text-primary placeholder:text-text-secondary/50 outline-none text-base border-b-2 border-slate-200 focus:border-accent transition-colors"
+          className="mt-4 w-full py-3 bg-transparent text-[#0F172A] placeholder:text-[#94A3B8] outline-none text-base border-b-2 border-[#E2E8F0] focus:border-[#3B82F6] transition-colors"
         />
       </div>
 
       {/* Mood */}
       <div className="mb-8">
-        <h2 className="text-lg font-semibold text-text-primary mb-4">
+        <h2 className="text-lg font-semibold text-[#0F172A] mb-4">
           How did it feel?
         </h2>
         <MoodSelector selected={moodRating} onSelect={setMoodRating} />
@@ -210,7 +255,7 @@ function LogContent() {
 
       {/* Notes */}
       <div className="mb-10">
-        <h2 className="text-lg font-semibold text-text-primary mb-4">
+        <h2 className="text-lg font-semibold text-[#0F172A] mb-4">
           Any thoughts?
         </h2>
         <textarea
@@ -218,7 +263,7 @@ function LogContent() {
           onChange={(e) => setNotes(e.target.value)}
           placeholder="What made this time special?"
           rows={3}
-          className="w-full px-4 py-4 rounded-lg bg-white text-text-primary placeholder:text-text-secondary/50 outline-none shadow-sm text-base resize-none transition-shadow focus:shadow-md"
+          className="w-full px-4 py-4 rounded-xl bg-white text-[#0F172A] placeholder:text-[#94A3B8] outline-none shadow-sm text-base resize-none transition-shadow focus:shadow-md"
         />
       </div>
 
@@ -235,7 +280,7 @@ function LogContent() {
           <button
             type="button"
             onClick={handleSkip}
-            className="w-full py-3 text-text-secondary text-sm font-medium hover:text-text-primary transition-colors min-h-[44px]"
+            className="w-full py-3 text-sm font-medium text-[#94A3B8] hover:text-[#475569] transition-colors min-h-[44px]"
           >
             Just save the time
           </button>
@@ -249,7 +294,7 @@ export default function LogPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-text-secondary">Loading...</div>
+        <div className="text-[#94A3B8]">Loading...</div>
       </div>
     }>
       <LogContent />
