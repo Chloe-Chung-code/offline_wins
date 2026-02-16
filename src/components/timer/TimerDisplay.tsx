@@ -12,7 +12,8 @@ export default function TimerDisplay({
     secondsRemaining,
     className,
 }: TimerDisplayProps) {
-    const minutes = Math.floor(secondsRemaining / 60);
+    const hours = Math.floor(secondsRemaining / 3600);
+    const minutes = Math.floor((secondsRemaining % 3600) / 60);
     const seconds = secondsRemaining % 60;
 
     const formattedMinutes = minutes.toString().padStart(2, "0");
@@ -21,12 +22,18 @@ export default function TimerDisplay({
     return (
         <div className={cn("flex flex-col items-center", className)}>
             <div className="font-sans text-[4rem] leading-none font-thin tracking-tighter text-text-primary tabular-nums">
+                {hours > 0 && (
+                    <>
+                        {hours}
+                        <span className="text-slate-300">:</span>
+                    </>
+                )}
                 {formattedMinutes}
-                <span className="text-white/20">:</span>
+                <span className="text-slate-300">:</span>
                 {formattedSeconds}
             </div>
             <div className="mt-2 text-xs font-medium uppercase tracking-[0.2em] text-text-secondary">
-                Focus Session
+                Offline Session
             </div>
         </div>
     );
