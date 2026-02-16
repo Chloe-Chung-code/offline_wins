@@ -21,8 +21,8 @@ const config: Config = {
       },
       keyframes: {
         "breathing-glow": {
-          "0%, 100%": { transform: "scale(1)", borderColor: "rgba(59, 130, 246, 0.15)", boxShadow: "0 0 20px 8px rgba(59, 130, 246, 0.06)" },
-          "50%": { transform: "scale(1.02)", borderColor: "rgba(59, 130, 246, 0.35)", boxShadow: "0 0 40px 16px rgba(59, 130, 246, 0.12)" },
+          "0%, 100%": { transform: "scale(1)", borderColor: "rgba(59, 130, 246, 0.08)", boxShadow: "0 0 0 0 rgba(59, 130, 246, 0)" },
+          "50%": { transform: "scale(1.02)", borderColor: "rgba(59, 130, 246, 0.15)", boxShadow: "0 0 30px 0 rgba(59, 130, 246, 0.08)" },
         },
         "ripple-expand": {
           "0%": { transform: "scale(0)", opacity: "1" },
