@@ -44,7 +44,7 @@ export default function BreathingRing({
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={strokeWidth}
-                    className="text-white/5"
+                    className="text-[#E2E8F0]"
                 />
                 {/* Progress Indicator */}
                 <circle
