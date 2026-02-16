@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { cn } from "@/lib/utils";
 import { TimerStatus } from "@/lib/types";
 
@@ -23,7 +22,6 @@ export default function BreathingRing({
     const circumference = 2 * Math.PI * radius;
     const dashOffset = circumference * (1 - progress);
 
-
     return (
         <div
             className="relative inline-flex items-center justify-center transition-all duration-700 ease-in-out"
@@ -44,7 +42,7 @@ export default function BreathingRing({
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={strokeWidth}
-                    className="text-[#E2E8F0]"
+                    className="text-white/5"
                 />
                 {/* Progress Indicator */}
                 <circle
