@@ -28,10 +28,10 @@ export default function CalendarHeatmap() {
     };
 
     const getIntensityClass = (minutes: number) => {
-        if (minutes === 0) return "bg-white/5";
-        if (minutes < 30) return "bg-accent/30";
-        if (minutes < 60) return "bg-accent/60";
-        return "bg-accent";
+        if (minutes === 0) return "bg-[#F1F5F9]";
+        if (minutes < 30) return "bg-[#BFDBFE]";
+        if (minutes < 60) return "bg-[#60A5FA]";
+        return "bg-[#3B82F6]";
     };
 
     return (

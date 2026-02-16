@@ -24,14 +24,14 @@ export default function CalendarPage() {
   if (!mounted) return null;
 
   return (
-    <LayoutShell>
-      <div className="flex items-center justify-between mb-8">
-        <Typography.H1>Insights</Typography.H1>
+    <LayoutShell className="pt-14">
+      <div className="mb-6">
+        <Typography.H1 className="!mb-0">Insights</Typography.H1>
       </div>
 
       <StatsOverview />
 
-      <div className="mb-12">
+      <div className="mb-8">
         <CalendarHeatmap />
       </div>
 
