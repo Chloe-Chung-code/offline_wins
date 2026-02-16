@@ -4,13 +4,12 @@ import { cn } from "@/lib/utils";
 
 interface TimerDisplayProps {
     secondsRemaining: number;
-    totalDuration: number;
+    totalDuration?: number;
     className?: string;
 }
 
 export default function TimerDisplay({
     secondsRemaining,
-    totalDuration,
     className,
 }: TimerDisplayProps) {
     const minutes = Math.floor(secondsRemaining / 60);
