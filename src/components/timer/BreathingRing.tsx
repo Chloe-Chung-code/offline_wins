@@ -31,7 +31,7 @@ export default function BreathingRing({
         >
             {/* Container for the specific breathing animation */}
             <div className={cn(
-                "absolute inset-0 rounded-full border-2 border-transparent transition-all duration-[4000ms]",
+                "absolute inset-0 rounded-full border-2 border-blue-300/20 transition-all duration-[4000ms]",
                 status === "running" && "animate-breathing-glow"
             )} />
 
@@ -44,7 +44,7 @@ export default function BreathingRing({
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={strokeWidth}
-                    className="text-[#E2E8F0]"
+                    className="text-slate-200"
                 />
                 {/* Progress Indicator */}
                 <circle
@@ -58,7 +58,7 @@ export default function BreathingRing({
                     strokeDasharray={circumference}
                     strokeDashoffset={dashOffset}
                     className={cn(
-                        "text-accent transition-all duration-1000 ease-linear",
+                        "text-blue-500 transition-all duration-1000 ease-linear",
                         status === "completed" && "text-white"
                     )}
                 />
