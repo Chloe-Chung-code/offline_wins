@@ -26,7 +26,7 @@ const ACTIVITY_PRESETS = [
   { emoji: "🎮", label: "Playing" },
 ];
 
-type LogPhase = "celebration" | "form" | "saved";
+type LogPhase = "celebration" | "form";
 
 function LogContent() {
   const router = useRouter();
@@ -164,10 +164,7 @@ function LogContent() {
       saveSession(fullSession);
     }
 
-    setPhase("saved");
-    setTimeout(() => {
-      router.push("/calendar");
-    }, 1000);
+    router.push("/calendar");
   }
 
   // --- Celebration Screen ---
@@ -228,17 +225,6 @@ function LogContent() {
             Save just the time
           </button>
         </div>
-      </div>
-    );
-  }
-
-  // --- Saved celebration ---
-  if (phase === "saved") {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-2xl font-bold text-[#0F172A] animate-fade-in-up">
-          Saved! 🎉
-        </p>
       </div>
     );
   }

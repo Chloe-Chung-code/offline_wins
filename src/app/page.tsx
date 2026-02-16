@@ -12,7 +12,6 @@ import TimerDisplay from "@/components/timer/TimerDisplay";
 import RippleEffect from "@/components/timer/RippleEffect";
 import LayoutShell from "@/components/ui/LayoutShell";
 import * as Typography from "@/components/ui/Typography";
-import Button from "@/components/ui/Button";
 import { useTimer } from "@/hooks/useTimer";
 
 export default function HomePage() {
@@ -120,15 +119,12 @@ export default function HomePage() {
             />
           </BreathingRing>
 
-          <div className="mt-12">
-            <Button
-              variant="outline"
-              onClick={handleEndSession}
-              className="border-slate-300 text-text-secondary hover:text-text-primary hover:border-slate-400"
-            >
-              End Session
-            </Button>
-          </div>
+          <button
+            onClick={handleEndSession}
+            className="text-sm text-[#94A3B8] font-medium hover:text-[#475569] transition-colors mt-12"
+          >
+            End session
+          </button>
         </div>
       </LayoutShell>
     );

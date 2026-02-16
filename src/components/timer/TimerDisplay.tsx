@@ -22,11 +22,11 @@ export default function TimerDisplay({
         <div className={cn("flex flex-col items-center", className)}>
             <div className="font-sans text-[4rem] leading-none font-thin tracking-tighter text-text-primary tabular-nums">
                 {formattedMinutes}
-                <span className="text-white/20">:</span>
+                <span className="text-[#94A3B8]">:</span>
                 {formattedSeconds}
             </div>
-            <div className="mt-2 text-xs font-medium uppercase tracking-[0.2em] text-text-secondary">
-                Focus Session
+            <div className="mt-2 text-xs font-medium uppercase tracking-[0.2em] text-[#94A3B8]">
+                Offline Session
             </div>
         </div>
     );

@@ -19,7 +19,10 @@ export default function BottomNav() {
 
   useEffect(() => {
     setMounted(true);
-    setHidden(isSessionActive());
+    const check = () => setHidden(isSessionActive());
+    check();
+    const interval = setInterval(check, 1000);
+    return () => clearInterval(interval);
   }, [pathname]);
 
   if (!mounted) return null;
