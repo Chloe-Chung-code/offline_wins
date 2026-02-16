@@ -2,12 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import LayoutShell from "@/components/ui/LayoutShell";
-import * as Typography from "@/components/ui/Typography";
-import Button from "@/components/ui/Button";
 import { getSettings, saveSettings, clearAllData } from "@/lib/storage";
 import { getLifetimeStats } from "@/lib/streak-calculator";
-import { formatDuration } from "@/lib/format";
 
 const GOAL_PRESETS = [
   { label: "30m", minutes: 30 },
@@ -20,11 +16,16 @@ export default function SettingsPage() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [goalMinutes, setGoalMinutes] = useState(60);
-  const [customGoal, setCustomGoal] = useState("");
+  const [customHours, setCustomHours] = useState(0);
+  const [customMins, setCustomMins] = useState(0);
   const [isCustom, setIsCustom] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showToast, setShowToast] = useState(false);
-  const [stats, setStats] = useState({ totalHours: 0, totalSessions: 0, longestStreak: 0 });
+  const [stats, setStats] = useState({
+    totalHours: 0,
+    totalSessions: 0,
+    longestStreak: 0,
+  });
   const [memberSince, setMemberSince] = useState("");
 
   useEffect(() => {
@@ -37,10 +38,13 @@ export default function SettingsPage() {
 
     setGoalMinutes(settings.dailyGoalMinutes);
 
-    const matchesPreset = GOAL_PRESETS.some((p) => p.minutes === settings.dailyGoalMinutes);
+    const matchesPreset = GOAL_PRESETS.some(
+      (p) => p.minutes === settings.dailyGoalMinutes
+    );
     if (!matchesPreset) {
       setIsCustom(true);
-      setCustomGoal(String(settings.dailyGoalMinutes));
+      setCustomHours(Math.floor(settings.dailyGoalMinutes / 60));
+      setCustomMins(settings.dailyGoalMinutes % 60);
     }
 
     setStats(getLifetimeStats());
@@ -58,20 +62,35 @@ export default function SettingsPage() {
   function handlePresetClick(minutes: number) {
     setGoalMinutes(minutes);
     setIsCustom(false);
-    setCustomGoal("");
+    setCustomHours(0);
+    setCustomMins(0);
     saveGoal(minutes);
   }
 
   function handleCustomClick() {
     setIsCustom(true);
+    // Initialize custom fields from current goal
+    setCustomHours(Math.floor(goalMinutes / 60));
+    setCustomMins(goalMinutes % 60);
   }
 
-  function handleCustomChange(value: string) {
-    setCustomGoal(value);
-    const parsed = parseInt(value, 10);
-    if (!isNaN(parsed) && parsed > 0) {
-      setGoalMinutes(parsed);
-      saveGoal(parsed);
+  function handleCustomHoursChange(value: string) {
+    const h = parseInt(value, 10) || 0;
+    setCustomHours(h);
+    const total = h * 60 + customMins;
+    if (total > 0) {
+      setGoalMinutes(total);
+      saveGoal(total);
+    }
+  }
+
+  function handleCustomMinsChange(value: string) {
+    const m = parseInt(value, 10) || 0;
+    setCustomMins(m);
+    const total = customHours * 60 + m;
+    if (total > 0) {
+      setGoalMinutes(total);
+      saveGoal(total);
     }
   }
 
@@ -88,24 +107,25 @@ export default function SettingsPage() {
   }
 
   return (
-    <LayoutShell>
-      <Typography.H1>Settings</Typography.H1>
+    <div className="min-h-screen bg-[#F8FAFC] px-5 pt-14 pb-24">
+      <h1 className="text-2xl font-bold text-[#0F172A] mb-6">Settings</h1>
 
       {/* Daily Goal */}
-      <section className="bg-surface-light rounded-xl p-5 border border-white/5 mb-6">
-        <Typography.Label className="mb-4 block">
+      <section className="bg-white rounded-xl shadow-sm p-5 mb-6">
+        <p className="text-base font-medium text-[#0F172A] mb-4">
           Daily offline goal
-        </Typography.Label>
-        <div className="flex flex-wrap gap-2 mb-3">
+        </p>
+        <div className="flex flex-wrap gap-2">
           {GOAL_PRESETS.map((preset) => (
             <button
               key={preset.minutes}
               type="button"
               onClick={() => handlePresetClick(preset.minutes)}
-              className={`px-5 py-2.5 rounded-full text-sm font-semibold min-h-[44px] transition-all duration-200 ${goalMinutes === preset.minutes && !isCustom
-                  ? "bg-accent text-white shadow-lg shadow-accent/20"
-                  : "bg-surface text-text-secondary hover:bg-surface-elevated"
-                }`}
+              className={`px-5 py-2.5 rounded-full text-sm font-medium min-h-[44px] transition-all duration-200 ${
+                goalMinutes === preset.minutes && !isCustom
+                  ? "bg-[#0F172A] text-white"
+                  : "bg-white border border-[#E2E8F0] text-[#475569]"
+              }`}
             >
               {preset.label}
             </button>
@@ -113,44 +133,74 @@ export default function SettingsPage() {
           <button
             type="button"
             onClick={handleCustomClick}
-            className={`px-5 py-2.5 rounded-full text-sm font-semibold min-h-[44px] transition-all duration-200 ${isCustom
-                ? "bg-accent text-white shadow-lg shadow-accent/20"
-                : "bg-surface text-text-secondary hover:bg-surface-elevated"
-              }`}
+            className={`px-5 py-2.5 rounded-full text-sm font-medium min-h-[44px] transition-all duration-200 ${
+              isCustom
+                ? "bg-[#0F172A] text-white"
+                : "bg-white border border-[#E2E8F0] text-[#475569]"
+            }`}
           >
             Custom
           </button>
         </div>
         {isCustom && (
-          <div className="flex items-center gap-3 animate-fade-in-up mt-2">
+          <div className="flex items-center gap-3 animate-fade-in-up mt-4">
             <input
               type="number"
-              value={customGoal}
-              onChange={(e) => handleCustomChange(e.target.value)}
-              placeholder="Minutes"
-              min={1}
-              className="w-24 py-2.5 bg-transparent text-white placeholder:text-white/20 outline-none border-b-2 border-white/10 focus:border-accent transition-colors text-center"
+              value={customHours}
+              onChange={(e) => handleCustomHoursChange(e.target.value)}
+              min={0}
+              className="w-16 h-10 text-center border border-[#E2E8F0] rounded-lg text-sm text-[#0F172A] focus:border-[#3B82F6] focus:outline-none transition-colors"
             />
-            <Typography.Caption>minutes per day</Typography.Caption>
+            <span className="text-sm text-[#475569]">hours</span>
+            <input
+              type="number"
+              value={customMins}
+              onChange={(e) => handleCustomMinsChange(e.target.value)}
+              min={0}
+              max={59}
+              className="w-16 h-10 text-center border border-[#E2E8F0] rounded-lg text-sm text-[#0F172A] focus:border-[#3B82F6] focus:outline-none transition-colors"
+            />
+            <span className="text-sm text-[#475569]">minutes</span>
           </div>
         )}
-        <div className="mt-3">
-          <Typography.Caption>
-            Current: <span className="font-semibold text-accent">{formatDuration(goalMinutes)}</span> per day
-          </Typography.Caption>
-        </div>
       </section>
 
       {/* Lifetime Stats */}
-      <section className="bg-surface-light rounded-xl p-5 border border-white/5 mb-6">
-        <Typography.Label className="mb-4 block">
+      <section className="bg-white rounded-xl shadow-sm p-5 mb-6">
+        <p className="text-base font-medium text-[#0F172A] mb-4">
           Lifetime stats
-        </Typography.Label>
+        </p>
         <div className="grid grid-cols-2 gap-3">
-          <StatCard label="Total offline" value={`${stats.totalHours}h`} />
-          <StatCard label="Sessions" value={String(stats.totalSessions)} />
-          <StatCard label="Longest streak" value={`${stats.longestStreak}d`} />
-          <StatCard label="Member since" value={memberSince} small />
+          <div className="bg-[#F1F5F9] rounded-lg p-4">
+            <p className="text-xs font-medium text-[#94A3B8] uppercase tracking-wider mb-1">
+              Total offline
+            </p>
+            <p className="text-2xl font-bold text-[#0F172A]">
+              {stats.totalHours}h
+            </p>
+          </div>
+          <div className="bg-[#F1F5F9] rounded-lg p-4">
+            <p className="text-xs font-medium text-[#94A3B8] uppercase tracking-wider mb-1">
+              Sessions
+            </p>
+            <p className="text-2xl font-bold text-[#0F172A]">
+              {stats.totalSessions}
+            </p>
+          </div>
+          <div className="bg-[#F1F5F9] rounded-lg p-4">
+            <p className="text-xs font-medium text-[#94A3B8] uppercase tracking-wider mb-1">
+              Longest streak
+            </p>
+            <p className="text-2xl font-bold text-[#0F172A]">
+              {stats.longestStreak}d
+            </p>
+          </div>
+          <div className="bg-[#F1F5F9] rounded-lg p-4">
+            <p className="text-xs font-medium text-[#94A3B8] uppercase tracking-wider mb-1">
+              Member since
+            </p>
+            <p className="text-sm font-bold text-[#0F172A]">{memberSince}</p>
+          </div>
         </div>
       </section>
 
@@ -159,74 +209,56 @@ export default function SettingsPage() {
         <button
           type="button"
           onClick={() => setShowClearConfirm(true)}
-          className="text-red-400 text-sm font-medium min-h-[44px] transition-colors hover:text-red-300"
+          className="text-red-400 text-sm font-medium min-h-[44px]"
         >
           Clear all data
         </button>
       </div>
 
       {/* App Info */}
-      <div className="text-center mt-8 opacity-50">
-        <Typography.Caption>
-          Offline Wins v1.0 · Focus Edition 🌿
-        </Typography.Caption>
+      <div className="text-center mt-8">
+        <p className="text-xs text-[#94A3B8]">
+          Offline Wins v1.0 · AxxLabs
+        </p>
       </div>
 
       {/* Toast */}
       {showToast && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-full bg-accent text-white text-sm font-semibold shadow-lg shadow-accent/20 animate-fade-in-up">
-          Goal updated!
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-[#0F172A] text-white rounded-full px-5 py-2.5 text-sm font-medium shadow-lg animate-fade-in-up">
+          Goal updated ✓
         </div>
       )}
 
-      {/* Clear Confirmation */}
+      {/* Clear Confirmation Modal */}
       {showClearConfirm && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 px-6">
-          <div className="bg-surface rounded-xl p-6 w-full max-w-sm border border-white/10 shadow-2xl animate-fade-in-up">
-            <Typography.H2 className="mb-2">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-6">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm animate-fade-in-up">
+            <h2 className="text-lg font-semibold text-[#0F172A] mb-2">
               Delete everything?
-            </Typography.H2>
-            <Typography.Body className="mb-6">
-              This will delete all your offline sessions and settings. This cannot be undone.
-            </Typography.Body>
+            </h2>
+            <p className="text-sm text-[#475569] mb-6">
+              This will delete all your offline sessions and settings. This
+              cannot be undone.
+            </p>
             <div className="flex gap-3">
-              <Button
-                variant="ghost"
+              <button
+                type="button"
                 onClick={() => setShowClearConfirm(false)}
-                className="flex-1"
+                className="flex-1 bg-[#F1F5F9] text-[#475569] rounded-xl py-3 text-sm font-medium"
               >
                 Cancel
-              </Button>
-              <Button
-                variant="solid"
+              </button>
+              <button
+                type="button"
                 onClick={handleClearData}
-                className="flex-1 bg-red-500 hover:bg-red-600 shadow-red-900/20"
+                className="flex-1 bg-red-500 text-white rounded-xl py-3 text-sm font-medium"
               >
                 Delete
-              </Button>
+              </button>
             </div>
           </div>
         </div>
       )}
-    </LayoutShell>
-  );
-}
-
-function StatCard({
-  label,
-  value,
-  small,
-}: {
-  label: string;
-  value: string;
-  small?: boolean;
-}) {
-  return (
-    <div className="bg-surface rounded-lg p-4 border border-white/5">
-      <Typography.Caption className="mb-1">{label}</Typography.Caption>
-      <p className={`font-bold text-white ${small ? "text-sm" : "text-2xl"}`}>
-        {value}
-      </p>
     </div>
   );
 }
