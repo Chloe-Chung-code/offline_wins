@@ -23,6 +23,7 @@ export default function HomePage() {
   const [userName, setUserName] = useState<string | null>(null);
   const [recentSessions, setRecentSessions] = useState<Session[]>([]);
   const [isRippleActive, setIsRippleActive] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   // Unit B: Timer Hook
   const {
@@ -94,9 +95,8 @@ export default function HomePage() {
   }
 
   function handleEndSession() {
-    // Stop visual timer
+    setIsNavigating(true);
     resetTimer();
-    // Navigate to log to save
     router.push("/log");
   }
 
@@ -106,6 +106,8 @@ export default function HomePage() {
   };
 
   if (!mounted) return null;
+
+  if (isNavigating) return <div className="min-h-screen bg-background" />;
 
   // Render Active Session View
   if (timerStatus === "running") {

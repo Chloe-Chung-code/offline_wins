@@ -171,60 +171,68 @@ function LogContent() {
   if (phase === "celebration") {
     return (
       <div
-        className={`min-h-screen flex flex-col items-center justify-center px-6 relative overflow-hidden transition-opacity duration-[400ms] ${
+        className={`min-h-screen flex flex-col relative overflow-hidden transition-opacity duration-[400ms] ${
           celebrationFading ? "opacity-0" : "opacity-100"
         }`}
       >
-        {/* Ripple rings */}
-        {[0, 1, 2].map((i) => (
-          <div
-            key={i}
-            className="absolute rounded-full border border-[#3B82F6]/20 bg-[#3B82F6]/5 animate-ripple-expand"
-            style={{
-              animationDelay: `${i * 0.4}s`,
-              width: "100px",
-              height: "100px",
-            }}
-          />
-        ))}
+        {/* Top 60%: Ripple area with text */}
+        <div className="flex-[6] flex flex-col items-center justify-center relative">
+          {/* Ripple rings — centered in this area */}
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="absolute rounded-full border border-[#3B82F6]/20 bg-[#3B82F6]/5 animate-ripple-expand"
+              style={{
+                animationDelay: `${i * 0.4}s`,
+                width: "100px",
+                height: "100px",
+              }}
+            />
+          ))}
 
-        {/* Central glow */}
-        <div className="absolute w-32 h-32 bg-[#3B82F6]/20 blur-3xl rounded-full animate-pulse-slow" />
+          {/* Central glow */}
+          <div className="absolute w-32 h-32 bg-[#3B82F6]/20 blur-3xl rounded-full animate-pulse-slow" />
 
-        {/* Content */}
-        <div className="relative z-10 flex flex-col items-center w-full max-w-sm">
+          {/* Text content */}
           <h1
-            className="text-2xl font-bold text-[#0F172A] opacity-0 animate-fade-in-up"
+            className="relative z-10 text-2xl font-bold text-[#0F172A] opacity-0 animate-fade-in-up"
             style={{ animationDelay: "0.5s" }}
           >
             Nice work!
           </h1>
           <p
-            className="text-4xl font-bold text-[#0F172A] mt-2 opacity-0 animate-fade-in-up"
+            className="relative z-10 text-4xl font-bold text-[#0F172A] mt-2 opacity-0 animate-fade-in-up"
             style={{ animationDelay: "0.7s" }}
           >
             {formatDuration(durationMinutes)} offline
           </p>
-
-          <div className="h-12" />
-
-          <button
-            type="button"
-            onClick={handleLogYourWin}
-            className="w-full py-4 bg-[#0F172A] text-white text-lg font-semibold rounded-2xl shadow-lg active:scale-[0.98] transition-transform duration-200 min-h-[56px] opacity-0 animate-fade-in-up"
-            style={{ animationDelay: "1.2s" }}
-          >
-            Log your win
-          </button>
-          <button
-            type="button"
-            onClick={handleSaveJustTime}
-            className="mt-4 text-sm font-medium text-[#94A3B8] hover:text-[#475569] transition-colors min-h-[44px] opacity-0 animate-fade-in-up"
-            style={{ animationDelay: "1.4s" }}
-          >
-            Save just the time
-          </button>
         </div>
+
+        {/* Bottom 30%: Buttons */}
+        <div className="flex-[3] flex flex-col items-center justify-start px-6">
+          <div className="w-full max-w-sm">
+            <button
+              type="button"
+              onClick={handleLogYourWin}
+              className="w-full py-4 bg-[#0F172A] text-white text-lg font-semibold rounded-2xl shadow-lg active:scale-[0.98] transition-transform duration-200 min-h-[56px] opacity-0 animate-fade-in-up"
+              style={{ animationDelay: "1.2s" }}
+            >
+              Log your win
+            </button>
+            <div className="h-3" />
+            <button
+              type="button"
+              onClick={handleSaveJustTime}
+              className="w-full text-sm font-medium text-[#94A3B8] hover:text-[#475569] transition-colors min-h-[44px] opacity-0 animate-fade-in-up text-center"
+              style={{ animationDelay: "1.4s" }}
+            >
+              Save just the time
+            </button>
+          </div>
+        </div>
+
+        {/* Bottom 10%: Safe area padding */}
+        <div className="flex-[1]" />
       </div>
     );
   }
